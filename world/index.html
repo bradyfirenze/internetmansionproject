@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>The Internet Mansion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js" } }</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="crosshair"></div>
+<div id="water"></div>
+<div id="fade"></div>
+
+<!-- HUD -->
+<div id="hud" hidden>
+  <div id="brand"><span class="imp">IMP</span><span id="room">The Grounds</span><span id="owner"></span></div>
+  <div id="gold"><i></i><span id="goldN">0 / 0</span></div>
+  <canvas id="mini" width="132" height="132"></canvas>
+  <div id="prompt" hidden><kbd id="promptKey">E</kbd><span id="promptText"></span></div>
+  <div id="face" hidden></div>
+  <div id="notice" hidden></div>
+  <div id="toast" hidden><b>UNLOCKED</b><span id="toastText"></span></div>
+  <div id="power" hidden><i id="powerFill"></i></div>
+  <div id="race" hidden><div id="raceBar"><b id="racePos">P4</b><span id="raceLap">LAP 1/3</span><span id="raceTime">0.0</span></div><div id="raceBig" hidden></div></div>
+  <div id="speed" hidden><b id="speedN">0</b><small>MPH</small></div>
+  <div id="topBtns">
+    <button id="btnList" title="Things to try">List</button>
+    <button id="btnMap" title="Map">Map</button>
+    <button id="btnCam" title="Camera">View</button>
+    <button id="btnMute" title="Sound">Sound</button>
+    <button id="btnTime" title="Day or night (N)">Night</button>
+  </div>
+</div>
+
+<!-- Phone controls -->
+<div id="touch" hidden>
+  <div id="stick"><div id="nub"></div></div>
+  <button id="tJump">JUMP</button>
+  <button id="tFly">FLY</button>
+  <button id="tUse" hidden>USE</button>
+</div>
+
+<!-- Title -->
+<div id="title">
+  <div class="tBox">
+    <div class="tKicker">THE BIGGEST HOUSE ON THE INTERNET</div>
+    <h1>THE INTERNET<br>MANSION</h1>
+    <form id="signup" novalidate>
+      <h2>SIGN UP TO GET IN</h2>
+      <p class="suLead">The whole mansion is playable. Sign up and you can walk in right now. Signing up also makes you an IMP VIP.</p>
+      <input id="suHandle" placeholder="Instagram @handle" maxlength="31" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="suTabs"><button type="button" id="suText" class="on">Text</button><button type="button" id="suEmail">Email</button></div>
+      <input id="suPhone" type="tel" placeholder="Phone number" autocomplete="tel">
+      <input id="suMail" type="email" placeholder="Email" autocomplete="email" autocapitalize="off" spellcheck="false" hidden>
+      <input id="suCity" placeholder="City" maxlength="80" autocomplete="off">
+      <select id="suRoom">
+        <option value="">Which room do you want to live in?</option>
+        <option>Sports Stadium</option><option>Gaming Room</option><option>Backyard Party</option><option>Party Room</option><option>Chill Lounge</option>
+        <option>Music Studio</option><option>Art Gallery</option><option>Designer Closet</option><option>Hot Rod Garage</option><option>Movie Theater</option>
+      </select>
+      <select id="suAge">
+        <option value="">Your age</option>
+        <option value="under13">Under 13</option><option value="13-17">13 to 17</option><option value="18+">18+</option>
+      </select>
+      <div class="suTrap" aria-hidden="true"><input id="suTrap" tabindex="-1" autocomplete="off"></div>
+      <label class="suCheck"><input id="suAgree" type="checkbox"><span>I follow <a href="https://www.instagram.com/internetmansionproject/" target="_blank" rel="noopener">@internetmansionproject</a>, I agree to the rules, and you can <span id="suVerb">text</span> me about the mansion.</span></label>
+      <div id="suErr" role="alert" hidden></div>
+      <button id="suGo" type="submit">LET ME IN</button>
+      <details class="suRules">
+        <summary>Rules</summary>
+        <ul>
+          <li>You must be at least 13 to sign up.</li>
+          <li>Signing up lets you into the world and makes you a VIP.</li>
+          <li>VIP doesn't guarantee entry to any real-life event.</li>
+          <li>Picking a room is your place in the community. It doesn't mean a room gets built for you.</li>
+          <li><a href="https://internetmansionproject.com/privacy.html" target="_blank" rel="noopener">Privacy policy</a></li>
+        </ul>
+      </details>
+    </form>
+    <div id="youreIn"><h2 id="inHead"></h2><p id="inSub"></p></div>
+    <div id="loadWrap"><div id="loadBar"></div></div>
+    <div id="loadText">Laying bricks...</div>
+    <div id="enterWrap" hidden>
+      <input id="name" type="hidden">
+      <button id="enter">WALK IN</button>
+      <div class="keys" id="keysDesk"><b>WASD</b> move <b>Mouse</b> look <b>Space</b> jump <b>Shift</b> sprint <b>F</b> fly <b>E</b> use <b>V</b> camera <b>M</b> map <b>Tab</b> list <b>N</b> day or night <b>Esc</b> free your mouse</div>
+      <div class="keys" id="keysTouch" hidden>Left thumb moves. Right thumb looks. Tap USE when it shows up.</div>
+    </div>
+    <div id="noGL" hidden>This browser could not start 3D. Try Safari or Chrome directly instead of an in-app browser.</div>
+  </div>
+</div>
+
+<!-- Paused -->
+<div id="paused" class="sheet" hidden><div class="tBox small"><h2>PAUSED</h2><button id="resume">KEEP EXPLORING</button>
+  <div id="pauseBtns"><button id="pMap">Map</button><button id="pList">Things to try</button><button id="pCam">Change view</button><button id="pTime">Make it night</button><button id="pMute">Sound off</button></div>
+  <div class="hint">Your mouse is free. Press Esc any time you're playing to get back here.</div></div></div>
+
+<!-- List -->
+<div id="list" class="sheet" hidden>
+  <div class="panel">
+    <div class="pHead"><h2>THINGS TO TRY</h2><button class="close" data-close="list">Close</button></div>
+    <div id="listItems"></div>
+  </div>
+</div>
+
+<!-- Map -->
+<div id="map" class="sheet" hidden>
+  <div class="panel wide">
+    <div class="pHead"><h2>THE PROPERTY</h2><button class="close" data-close="map">Close</button></div>
+    <div id="mapWrap"><canvas id="mapC" width="420" height="440"></canvas><div id="mapPins"></div></div>
+    <div class="hint">Tap a pin to go there.</div>
+  </div>
+</div>
+
+<!-- Arcade -->
+<div id="arcade" class="sheet" hidden>
+  <div class="cabinet">
+    <div class="pHead"><h2 id="arcadeTitle"></h2><button class="close" id="arcadeClose">Walk away</button></div>
+    <canvas id="arcadeC"></canvas>
+    <div class="hint" id="arcadeHelp"></div>
+  </div>
+</div>
+<!-- Elevator -->
+<div id="elevator" class="sheet" hidden><div class="panel"><div class="pHead"><h2 id="elevatorTitle">ELEVATOR</h2><button class="close" id="elevatorClose">Close</button></div><div id="elevatorBtns"></div></div></div>
+<!-- Movies -->
+<div id="movies" class="sheet" hidden><div class="panel wide"><div class="pHead"><h2>NOW SHOWING</h2><button class="close" id="moviesClose">Close</button></div><div id="moviesList"></div></div></div>
+<script src="js/signup.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
