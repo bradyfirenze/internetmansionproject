@@ -7,7 +7,7 @@
 <meta name="description" content="We're building the biggest mansion on the internet, one top comment at a time.">
 <meta property="og:title" content="The Internet Mansion Project">
 <meta property="og:description" content="We're building the biggest mansion on the internet, one top comment at a time.">
-<meta property="og:image" content="https://internetmansionproject.com/assets/mansion.jpg">
+<meta property="og:image" content="https://internetmansionproject.com/assets/mansion_front.jpg">
 <meta property="og:url" content="https://internetmansionproject.com/">
 <meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="assets/logo.jpg">
@@ -31,9 +31,8 @@
   a { color: inherit; }
   img { display: block; width: 100%; }
 
-  .hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 500px; padding: 24px 16px 28px; background: #05060a url("assets/mansion.jpg") center 45% / cover no-repeat; }
-  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(11,13,18,.05) 25%, rgba(11,13,18,.72) 62%, var(--ink) 100%); }
-  .hero > * { position: relative; z-index: 1; }
+  .hero-pic { height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+  .hero-text { padding: 20px 16px 24px; }
   h1 { margin: 0; font: 400 clamp(62px, 19vw, 118px)/1.02 var(--display); color: var(--gold); letter-spacing: .01em; text-shadow: 0 3px 18px rgba(0,0,0,.65); }
   .lead { margin: 12px 0 0; font-size: 18px; font-weight: 600; text-shadow: 0 1px 10px rgba(0,0,0,.8); }
 
@@ -51,43 +50,47 @@
   footer { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 28px 16px 40px; color: var(--muted); font-size: 14px; }
 
   @media (min-width: 860px) {
-    .hero { min-height: 480px; padding: 40px max(24px, calc((100vw - 1160px) / 2)) 36px; }
+    .hero-pic { aspect-ratio: auto; height: min(56vw, 560px); object-position: center 42%; }
+    .hero-text { padding: 28px max(24px, calc((100vw - 1160px) / 2)) 32px; }
     .doors { grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1208px; margin: 0 auto; padding: 4px 24px 0; }
     footer { max-width: 1208px; margin: 0 auto; padding: 32px 24px 44px; }
   }
 </style>
 </head>
 <body>
-<header class="hero">
-  <h1>THE INTERNET MANSION</h1>
-  <p class="lead">We're building the biggest mansion on the internet, one top comment at a time.</p>
+<header>
+  <img class="hero-pic" src="assets/mansion_front.jpg" width="1600" height="900" alt="The mansion from the front drive in the game, under the giant Internet Mansion sign">
+  <div class="hero-text">
+    <h1>THE INTERNET MANSION</h1>
+    <p class="lead">We're building the biggest mansion on the internet, one top comment at a time.</p>
+  </div>
 </header>
 
 <main class="doors">
-  <a class="door" href="vip/">
-    <img class="vip-pic" src="assets/hero.jpg" width="960" height="540" alt="The giant disco ball covered in follower pictures">
-    <div class="door-body">
-      <h2>Become a VIP</h2>
-      <p>Your name on the disco ball, the party invite list, and a room to call home.</p>
-      <span class="cta">Claim my spot</span>
-    </div>
-  </a>
-
   <a class="door" href="https://internetmansionproject.com/world/">
-    <img src="assets/world.jpg" width="1080" height="860" alt="A pyramid and a train on the mansion property" loading="lazy">
+    <img src="assets/world.jpg" width="1080" height="860" alt="A pyramid and a train on the mansion property">
     <div class="door-body">
       <h2>Play the mansion</h2>
-      <p>The whole property is playable in 3D. Sign up and walk in.</p>
+      <p>Type your handle and walk in.</p>
       <span class="cta">Walk in</span>
     </div>
   </a>
 
   <a class="door" href="sponsor/">
-    <img src="assets/sign.jpg" width="960" height="640" alt="The giant Internet Mansion sign with an empty presented-by spot" loading="lazy">
+    <img src="assets/mansion_room.jpg" width="1280" height="720" alt="The mansion from the front lawn in the game, under the giant Internet Mansion sign" loading="lazy">
     <div class="door-body">
-      <h2>Sponsor the mansion</h2>
-      <p>Put your name, your brand, or your song inside the mansion.</p>
+      <h2>Get your own room</h2>
+      <p>Your own room in the mansion, decorated however you want. For people and brands. Plus your name, your logo or your song around the property.</p>
       <span class="cta">See the spots</span>
+    </div>
+  </a>
+
+  <a class="door" href="vip/">
+    <img class="vip-pic" src="assets/hero.jpg" width="960" height="540" alt="The giant disco ball covered in follower pictures" loading="lazy">
+    <div class="door-body">
+      <h2>Become a VIP</h2>
+      <p>Your name on the disco ball, the party invite list, and a room to hang out in with other followers.</p>
+      <span class="cta">Claim my spot</span>
     </div>
   </a>
 </main>
