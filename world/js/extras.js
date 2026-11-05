@@ -4,7 +4,7 @@ import { FRIENDS_LINK } from './settings.js';
 import { makeQR, drawQR } from './qr.js';
 
 export function buildExtras(game, data, H) {
-  const { scene, player, sound } = game, { spots, W, G } = data, { P3, addE, tick, textCanvas, DISPLAY, label, button, musicAt } = H;
+  const { scene, player, sound } = game, { spots, W, G } = data, { P3, addE, tick, textCanvas, DISPLAY, label, button } = H;
 
   // ---------- Signs over every way out of the foyer ----------
   const wingSign = (i, text) => { const w = W[i], [x, y] = w.P(-1.0, w.width / 2); label(P3(x, y, 10.1), Math.atan2(-w.n[0], w.n[1]), text, 11, 0.95); };
@@ -107,9 +107,11 @@ export function buildExtras(game, data, H) {
 
     // FRIENDS, played through the game's sound so Mute works and the lights can follow the music
     const song = new Audio('assets/music/friends.m4a'); song.preload = 'none';
-    let songGain = null, analyser = null, freq = null, songOK = true, beat = 0, slowE = 0;
-    song.addEventListener('error', () => { songOK = false; });
-    const stagePos = P3(S.x, 90, 6);
+    let songGain = null, analyser = null, freq = null, beat = 0, slowE = 0;
+    const songFailed = () => { if (!on) return; stopShow(); game.notice("FRIENDS didn't load. Press the button to try again."); };
+    song.addEventListener('error', songFailed);
+    const stagePos = P3(S.x, 90, 6), SONG_FULL = 45, SONG_GONE = 95;
+    document.addEventListener('visibilitychange', () => { if (document.hidden && on) stopShow(); }); // Not on screen, not playing
     const wireSong = () => {
       if (analyser || !sound.ctx) return;
       const src = sound.ctx.createMediaElementSource(song); analyser = sound.ctx.createAnalyser(); analyser.fftSize = 256; freq = new Uint8Array(analyser.frequencyBinCount);
@@ -138,7 +140,6 @@ export function buildExtras(game, data, H) {
     }
     const stopShow = () => {
       on = false; beams.visible = false; rig.visible = false; confetti.visible = false; song.pause(); beat = 0; draw(0);
-      if (game.musicSource?.style === 'party') { sound.stopMusic(); game.musicSource = null; }
     };
     song.addEventListener('ended', () => { if (on) { stopShow(); song.currentTime = 0; game.notice('That was FRIENDS. Press the button to run it back.'); } });
     button(P3(S.x, S.y - 1, S.h), 0xff3f9a, () => on ? 'Stop the song' : 'Play FRIENDS', () => {
@@ -146,8 +147,9 @@ export function buildExtras(game, data, H) {
       if (on) { stopShow(); return; }
       on = true; beams.visible = true; rig.visible = true; confetti.visible = true; game.achieve('stage');
       sound.init(); sound.stopMusic(); game.musicSource = null; wireSong();
-      if (songOK) { song.currentTime = song.ended ? 0 : song.currentTime; const p = song.play(); if (p) p.catch(() => { songOK = false; musicAt('party', 4, stagePos.clone(), 110); }); }
-      else musicAt('party', 4, stagePos.clone(), 110);
+      if (song.error) song.load(); // A failed try shouldn't stop the next one
+      else if (song.ended) song.currentTime = 0;
+      const p = song.play(); if (p) p.catch((e) => { if (e.name !== 'AbortError') songFailed(); }); // AbortError just means it was stopped straight away
     });
     tick((dt, t) => {
       if (!on) return;
@@ -156,14 +158,17 @@ export function buildExtras(game, data, H) {
       if (analyser && !song.paused) { analyser.getByteFrequencyData(freq); e = (freq[1] + freq[2] + freq[3] + freq[4]) / 1020; }
       slowE += (e - slowE) * Math.min(1, dt * 2.5);
       if (e > slowE * 1.12 && e > 0.35) beat = 1; else beat = Math.max(0, beat - dt * 5);
-      if (songGain) songGain.gain.value = Math.max(0, Math.min(1, 1.15 - player.pos.distanceTo(stagePos) / 170));
+      // Full volume around the stage and crowd, fades as you walk off, stops once you've left
+      const away = player.pos.distanceTo(stagePos);
+      if (away > SONG_GONE) { stopShow(); return; }
+      if (songGain) songGain.gain.value = Math.max(0, Math.min(1, (SONG_GONE - away) / (SONG_GONE - SONG_FULL)));
       const pace = 1 + beat * 3;
       list.forEach((p, i) => {
-        p.rotation.z = Math.sin(t * 2.4 * pace * 0.5 + i) * 0.8; p.rotation.x = 0.55 + Math.sin(t * 1.8 + i * 1.7) * 0.45;
+        p.rotation.z = Math.sin(t * 2.4 * pace * 0.5 + i) * 0.8; p.rotation.x = -0.55 + Math.sin(t * 1.8 + i * 1.7) * 0.45;
         const m = p.children[0].material; m.opacity = 0.05 + beat * 0.3 + (Math.random() < 0.12 ? 0.18 : 0); if (Math.random() < 0.03) m.color.setHex(cols[Math.floor(Math.random() * 5)]);
       });
       strobes.forEach((s, i) => { s.visible = beat > 0.55 ? (i + Math.floor(t * 18)) % 2 === 0 : Math.random() < 0.06; });
-      lasers.forEach((p, i) => { p.rotation.x = 1.15 + Math.sin(t * 1.4 + i * 0.5) * 0.3; p.rotation.z = Math.sin(t * 2.1 + i) * 0.75; p.visible = beat > 0.25 || i % 3 === Math.floor(t * 4) % 3; });
+      lasers.forEach((p, i) => { p.rotation.x = -1.15 + Math.sin(t * 1.4 + i * 0.5) * 0.3; p.rotation.z = Math.sin(t * 2.1 + i) * 0.75; p.visible = beat > 0.25 || i % 3 === Math.floor(t * 4) % 3; });
       for (let i = 0; i < CONFETTI; i++) { cPos[i * 3 + 1] -= dt * (2 + (i % 5)); cPos[i * 3] += Math.sin(t * 2 + i) * dt * 1.4; if (cPos[i * 3 + 1] < G) seedBit(i); }
       cGeo.attributes.position.needsUpdate = true;
       if (t - lastDraw > 0.07) { lastDraw = t; draw(t); }

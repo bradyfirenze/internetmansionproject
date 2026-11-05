@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>The Internet Mansion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,6 +36,7 @@
     <button id="btnCam" title="Camera">View</button>
     <button id="btnMute" title="Sound">Sound</button>
     <button id="btnTime" title="Day or night (N)">Night</button>
+    <button id="btnFriend" title="Play with a friend (P)">Play with a friend</button>
   </div>
 </div>
 
@@ -89,7 +91,7 @@
     <div id="enterWrap" hidden>
       <input id="name" type="hidden">
       <button id="enter">WALK IN</button>
-      <div class="keys" id="keysDesk"><b>WASD</b> move <b>Mouse</b> look <b>Space</b> jump <b>Shift</b> sprint <b>F</b> fly <b>E</b> use <b>V</b> camera <b>M</b> map <b>Tab</b> list <b>N</b> day or night <b>R</b> who chose this room <b>Esc</b> free your mouse</div>
+      <div class="keys" id="keysDesk"><b>WASD</b> move <b>Mouse</b> look <b>Space</b> jump <b>Shift</b> sprint <b>F</b> fly <b>E</b> use <b>V</b> camera <b>M</b> map <b>Tab</b> list <b>N</b> day or night <b>R</b> who chose this room <b>P</b> play with a friend <b>Esc</b> free your mouse</div>
       <div class="keys" id="keysTouch" hidden>Left thumb moves. Right thumb looks. Tap USE when it shows up.</div>
     </div>
     <div id="noGL" hidden>This browser could not start 3D. Try Safari or Chrome directly instead of an in-app browser.</div>
@@ -98,7 +100,7 @@
 
 <!-- Paused -->
 <div id="paused" class="sheet" hidden><div class="tBox small"><h2>PAUSED</h2><button id="resume">KEEP EXPLORING</button>
-  <div id="pauseBtns"><button id="pMap">Map</button><button id="pList">Things to try</button><button id="pCam">Change view</button><button id="pTime">Make it night</button><button id="pMute">Sound off</button></div>
+  <div id="pauseBtns"><button id="pMap">Map</button><button id="pList">Things to try</button><button id="pCam">Change view</button><button id="pTime">Make it night</button><button id="pMute">Sound off</button><button id="pFriend">Play with a friend</button></div>
   <div class="hint">Your mouse is free. Press Esc any time you're playing to get back here.</div></div></div>
 
 <!-- List -->
@@ -130,6 +132,30 @@
 <div id="elevator" class="sheet" hidden><div class="panel"><div class="pHead"><h2 id="elevatorTitle">ELEVATOR</h2><button class="close" id="elevatorClose">Close</button></div><div id="elevatorBtns"></div></div></div>
 <!-- Movies -->
 <div id="movies" class="sheet" hidden><div class="panel wide"><div class="pHead"><h2>NOW SHOWING</h2><button class="close" id="moviesClose">Close</button></div><div id="moviesList"></div></div></div>
+<!-- Two players -->
+<div id="twoPlayer" class="sheet" hidden><div class="panel"><div class="pHead"><h2>PLAY WITH A FRIEND</h2><button class="close" data-close="twoPlayer">Close</button></div>
+  <div id="tpBody">
+    <div id="tpErr" role="alert" hidden></div>
+    <div id="tpIdle">
+      <button id="tpStart" class="tpMain">Start a room</button>
+      <div class="tpOr">or join your friend's room</div>
+      <div class="tpRow"><input id="tpInput" placeholder="Room code" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false"><button id="tpJoinBtn" class="tpMain">Join</button></div>
+    </div>
+    <div id="tpHost" hidden>
+      <div class="tpOr">Send your friend this code</div>
+      <div id="tpCode"></div>
+      <div id="tpLink"></div>
+      <button id="tpCopy" class="tpMain">Copy invite link</button>
+      <div class="tpOr">Waiting for your friend. Keep this tab open.</div>
+      <button id="tpLeaveHost" class="close wideBtn">Close the room</button>
+    </div>
+    <div id="tpOn" hidden>
+      <div id="tpWith"></div>
+      <button id="tpGo" class="tpMain">Go to them</button>
+      <button id="tpLeaveOn" class="close wideBtn">Leave</button>
+    </div>
+    <div class="hint">Only share codes with people you know. Each player's browser can see the other's IP address.</div>
+  </div></div></div>
 <!-- Who chose this room. Draft: local copies show made-up test names only -->
 <div id="roster" class="sheet" hidden><div class="panel"><div class="pHead"><h2 id="rosterTitle"></h2><button class="close" data-close="roster">Close</button></div>
   <div id="rosterTop"><span id="rosterCount"></span><select id="rosterCity" aria-label="Filter by city"></select></div>
@@ -138,6 +164,7 @@
 <!-- FRIENDS link, only used once the link is set in js/settings.js -->
 <div id="friendsSheet" class="sheet" hidden><div class="panel"><div class="pHead"><h2>FRIENDS</h2><button class="close" data-close="friendsSheet">Close</button></div>
   <div id="friendsBody"><a id="friendsGo" target="_blank" rel="noopener">Listen to FRIENDS</a><canvas id="friendsQR"></canvas><div class="hint">Or scan it with your phone.</div></div></div></div>
+<script src="vendor/peerjs.min.js"></script>
 <script src="js/signup.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>

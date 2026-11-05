@@ -1,0 +1,525 @@
+{
+"note": "Made-up test names for the local roster draft. Not real signups.",
+"people": [
+{
+"handle": "test_name_001",
+"city": "Miami",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_002",
+"city": "Atlanta",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_003",
+"city": "Atlanta",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_004",
+"city": "Austin",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_005",
+"city": "Denver",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_006",
+"city": null,
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_007",
+"city": "Atlanta",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_008",
+"city": "New York",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_009",
+"city": "Phoenix",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_010",
+"city": null,
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_011",
+"city": "Seattle",
+"room": "Sports Stadium"
+},
+{
+"handle": "test_name_012",
+"city": "Miami",
+"room": "Gaming Room"
+},
+{
+"handle": "test_name_013",
+"city": null,
+"room": "Gaming Room"
+},
+{
+"handle": "test_name_014",
+"city": "New York",
+"room": "Gaming Room"
+},
+{
+"handle": "test_name_015",
+"city": "Indianapolis",
+"room": "Gaming Room"
+},
+{
+"handle": "test_name_016",
+"city": "New York",
+"room": "Gaming Room"
+},
+{
+"handle": "test_name_017",
+"city": null,
+"room": "Gaming Room"
+},
+{
+"handle": "test_name_018",
+"city": "Seattle",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_019",
+"city": "Phoenix",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_020",
+"city": "Denver",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_021",
+"city": "New York",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_022",
+"city": "Phoenix",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_023",
+"city": null,
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_024",
+"city": "Seattle",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_025",
+"city": "Los Angeles",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_026",
+"city": "Nashville",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_027",
+"city": "Denver",
+"room": "Backyard Party"
+},
+{
+"handle": "test_name_028",
+"city": "Denver",
+"room": "Party Room"
+},
+{
+"handle": "test_name_029",
+"city": null,
+"room": "Party Room"
+},
+{
+"handle": "test_name_030",
+"city": "Nashville",
+"room": "Party Room"
+},
+{
+"handle": "test_name_031",
+"city": "Toronto",
+"room": "Party Room"
+},
+{
+"handle": "test_name_032",
+"city": "Phoenix",
+"room": "Party Room"
+},
+{
+"handle": "test_name_033",
+"city": "Atlanta",
+"room": "Party Room"
+},
+{
+"handle": "test_name_034",
+"city": "Chicago",
+"room": "Party Room"
+},
+{
+"handle": "test_name_035",
+"city": "Chicago",
+"room": "Party Room"
+},
+{
+"handle": "test_name_036",
+"city": "Seattle",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_037",
+"city": null,
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_038",
+"city": "Los Angeles",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_039",
+"city": "Los Angeles",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_040",
+"city": "Phoenix",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_041",
+"city": "Atlanta",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_042",
+"city": "Indianapolis",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_043",
+"city": "Seattle",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_044",
+"city": null,
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_045",
+"city": "Indianapolis",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_046",
+"city": "Seattle",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_047",
+"city": "Indianapolis",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_048",
+"city": "Seattle",
+"room": "Chill Lounge"
+},
+{
+"handle": "test_name_049",
+"city": null,
+"room": "Music Studio"
+},
+{
+"handle": "test_name_050",
+"city": "Chicago",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_051",
+"city": "Nashville",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_052",
+"city": null,
+"room": "Music Studio"
+},
+{
+"handle": "test_name_053",
+"city": "Chicago",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_054",
+"city": "Miami",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_055",
+"city": "Nashville",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_056",
+"city": null,
+"room": "Music Studio"
+},
+{
+"handle": "test_name_057",
+"city": "New York",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_058",
+"city": "Chicago",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_059",
+"city": "New York",
+"room": "Music Studio"
+},
+{
+"handle": "test_name_060",
+"city": "Los Angeles",
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_061",
+"city": "Miami",
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_062",
+"city": "Chicago",
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_063",
+"city": null,
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_064",
+"city": null,
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_065",
+"city": "Austin",
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_066",
+"city": "Phoenix",
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_067",
+"city": "Indianapolis",
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_068",
+"city": null,
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_069",
+"city": "Los Angeles",
+"room": "Art Gallery"
+},
+{
+"handle": "test_name_070",
+"city": "Toronto",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_071",
+"city": "Phoenix",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_072",
+"city": "Toronto",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_073",
+"city": null,
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_074",
+"city": "Seattle",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_075",
+"city": "Miami",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_076",
+"city": "Miami",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_077",
+"city": null,
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_078",
+"city": "Austin",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_079",
+"city": "Denver",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_080",
+"city": "Atlanta",
+"room": "Designer Closet"
+},
+{
+"handle": "test_name_081",
+"city": "Atlanta",
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_082",
+"city": null,
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_083",
+"city": null,
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_084",
+"city": null,
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_085",
+"city": "Austin",
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_086",
+"city": null,
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_087",
+"city": "Miami",
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_088",
+"city": null,
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_089",
+"city": "Los Angeles",
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_090",
+"city": "Nashville",
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_091",
+"city": null,
+"room": "Hot Rod Garage"
+},
+{
+"handle": "test_name_092",
+"city": "Nashville",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_093",
+"city": "Indianapolis",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_094",
+"city": null,
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_095",
+"city": null,
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_096",
+"city": "Indianapolis",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_097",
+"city": "Toronto",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_098",
+"city": null,
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_099",
+"city": null,
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_100",
+"city": "New York",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_101",
+"city": "Toronto",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_102",
+"city": "Austin",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_103",
+"city": "Indianapolis",
+"room": "Movie Theater"
+},
+{
+"handle": "test_name_104",
+"city": "Atlanta",
+"room": "Movie Theater"
+}
+]
+}

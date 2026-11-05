@@ -13,6 +13,7 @@ import { buildFeatures } from './features.js';
 import { runGame, GAMES } from './arcade.js';
 import { Sound } from './audio.js';
 import { buildRoster } from './roster.js';
+import { buildTwoPlayer } from './twoplayer.js';
 
 const $ = (id) => document.getElementById(id);
 const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window && innerWidth < 900;
@@ -274,7 +275,7 @@ async function boot() {
   let started = false, usePressed = false, useHeld = null, lastSpace = 0, lastW = 0, sprintLatch = false;
   const toggleFly = () => { if (player.locked) return; player.flying = !player.flying; player.vel.set(0, 0, 0); $('tFly').classList.toggle('on', player.flying); game.notice(player.flying ? 'Flying. Look where you want to go. Space up, C down. F to land.' : 'Landing.'); if (player.flying) game.achieve('fly'); };
   game.lock = (on) => { if (on) tryLock(); else releaseLock(); };
-  const anySheetOpen = () => !$('list').hidden || !$('map').hidden || !$('arcade').hidden || !$('paused').hidden || !$('movies').hidden || !$('elevator').hidden || !$('roster').hidden || !$('friendsSheet').hidden;
+  const anySheetOpen = () => !$('list').hidden || !$('map').hidden || !$('arcade').hidden || !$('paused').hidden || !$('movies').hidden || !$('elevator').hidden || !$('roster').hidden || !$('friendsSheet').hidden || !$('twoPlayer').hidden;
   const tryLock = () => { if (!started || IS_TOUCH || anySheetOpen() || params.has('nolock')) return; const p = canvas.requestPointerLock && canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); };
   const releaseLock = () => { if (document.pointerLockElement) document.exitPointerLock(); };
   game.isLocked = () => document.pointerLockElement === canvas;
@@ -295,11 +296,12 @@ async function boot() {
   addEventListener('pointerup', () => { drag = null; });
   addEventListener('keydown', (e) => {
     if (!$('title').hidden) return; // Typing in the signup form shouldn't move the player.
+    if (e.target && e.target.tagName === 'INPUT') return; // Same for the room code box
     if (['Space', 'Tab', 'ArrowUp', 'ArrowDown'].includes(e.code)) e.preventDefault();
     if (e.repeat) return;
     keys[e.code] = true;
     if (!started || !$('arcade').hidden) return;
-    if (e.code === 'Escape') { $('movies').hidden = true; $('elevator').hidden = true; $('roster').hidden = true; $('friendsSheet').hidden = true; }
+    if (e.code === 'Escape') { $('movies').hidden = true; $('elevator').hidden = true; $('roster').hidden = true; $('friendsSheet').hidden = true; $('twoPlayer').hidden = true; }
     if (e.code === 'KeyR' && !$('roster').hidden) { toggleSheet('roster', false); return; }
     if (anySheetOpen() && e.code !== 'KeyM' && e.code !== 'Tab') return;
     if (e.code === 'KeyE') pressUse();
@@ -310,6 +312,7 @@ async function boot() {
     if (e.code === 'KeyM') toggleSheet('map');
     if (e.code === 'KeyN') toggleDayNight();
     if (e.code === 'KeyR') openRoster();
+    if (e.code === 'KeyP') toggleSheet('twoPlayer', true);
     if (e.code === 'Tab') toggleSheet('list');
   });
   addEventListener('keyup', (e) => { keys[e.code] = false; if (e.code === 'KeyE') releaseUse(); if (e.code === 'KeyW') sprintLatch = false; });
@@ -317,6 +320,9 @@ async function boot() {
   document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => toggleSheet(b.dataset.close, false)));
   const openRoster = () => { if (game.toggleRoster()) toggleSheet('roster', true); };
   buildRoster(game); $('rosterBtn').onclick = openRoster;
+  $('btnFriend').onclick = () => toggleSheet('twoPlayer');
+  $('pFriend').onclick = () => { $('paused').hidden = true; toggleSheet('twoPlayer', true); };
+  game.closeTwoPlayer = () => toggleSheet('twoPlayer', false);
   $('btnList').onclick = () => toggleSheet('list'); $('btnMap').onclick = () => toggleSheet('map');
   const toggleCam = () => { player.third = !player.third; avatar.visible = player.third;  };
   $('btnCam').onclick = toggleCam;
@@ -406,6 +412,9 @@ async function boot() {
     avatar.userData.limbs = [part(0.2, 0.65, 0.22, shirt, -0.38, 1.0), part(0.2, 0.65, 0.22, shirt, 0.38, 1.0), part(0.24, 0.7, 0.26, pants, -0.14, 0.35), part(0.24, 0.7, 0.26, pants, 0.14, 0.35)];
   }
 
+  game.nameTag = nameTag; game.exitLocked = exitLocked;
+  buildTwoPlayer(game);
+
   // ---------- Title flow ----------
   $('loadWrap').hidden = true; $('loadText').hidden = true; $('enterWrap').hidden = false;
   if (IS_TOUCH) { $('keysDesk').hidden = true; $('keysTouch').hidden = false; }
@@ -419,6 +428,7 @@ async function boot() {
     $('title').hidden = true; $('hud').hidden = false; document.body.classList.add('playing');
     if (IS_TOUCH) { $('touch').hidden = false; document.documentElement.requestFullscreen?.().catch(() => {}); }
     started = true; tryLock();
+    game.twoPlayerAutoJoin();
     game.notice(IS_TOUCH ? 'Welcome to the lot. Everything you see was picked in the comments. Tap List for things to try.' : 'Welcome to the lot. Press Esc any time to free your mouse for the map, view and day or night buttons.');
   };
 
@@ -450,6 +460,7 @@ async function boot() {
   }
 
   function step(dt) {
+    game.twoPlayerUpdate(dt);
     const paused = anySheetOpen();
 
     if (!started) {
