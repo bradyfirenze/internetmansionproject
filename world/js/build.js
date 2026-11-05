@@ -198,16 +198,16 @@ export function buildWorld(V) {
   // Twin staircases up to the Rooms floor, with the aisle between them. First step is 51 blocks in from the door.
   for (let j = 0; j < 13; j++) {
     const row = 11 + DY + j;
-    for (const [a, b] of [[-12, -9], [-4, 0]]) { fill(a, b, row, row + 1, j, j + 1, B.redCarpet); if (j > 0) fill(a, b, row, row + 1, j - 1, j, B.trim); }
-    if (j > 0) { put(-10, row, j + 1, B.railGold); put(-4, row, j + 1, B.railGold); }
+    for (const [a, b] of [[-12, -8], [-4, 0]]) { fill(a, b, row, row + 1, j, j + 1, B.redCarpet); if (j > 0) fill(a, b, row, row + 1, j - 1, j, B.trim); }
+    if (j > 0) { put(-8, row, j + 1, B.railGold); put(-5, row, j + 1, B.railGold); } // Rails sit beside the steps, so the full 4 blocks are walkable
   }
   // Glass elevator between the stairs
-  shell(-9, -4, 18 + DY, 24 + DY, 0, 22, B.glass); fill(-9, -4, 18 + DY, 24 + DY, 22, 23, B.gold); fill(-8, -5, 19 + DY, 23 + DY, 12, 19, B.air); fill(-9, -4, 18 + DY, 24 + DY, -1, 0, B.gold);
-  for (const [a, b] of [[-9, 18], [-5, 18], [-9, 23], [-5, 23]]) fill(a, a + 1, b + DY, b + DY + 1, 0, 22, B.gold);
-  spots_el.elevator = { x: -6.5, y: 21 + DY };
+  shell(-8, -4, 18 + DY, 24 + DY, 0, 22, B.glass); fill(-8, -4, 18 + DY, 24 + DY, 22, 23, B.gold); fill(-7, -5, 19 + DY, 23 + DY, 12, 19, B.air); fill(-8, -4, 18 + DY, 24 + DY, -1, 0, B.gold);
+  for (const [a, b] of [[-8, 18], [-5, 18], [-8, 23], [-5, 23]]) fill(a, a + 1, b + DY, b + DY + 1, 0, 22, B.gold);
+  spots_el.elevator = { x: -6, y: 21 + DY };
 
   // Everything in this block is written at first-draft height and lifted U blocks.
-  const roomDoors = [], tvSpots = [], beds = [], arcadeR3 = [], secret = {}; let dungeon;
+  const roomDoors = [], tvSpots = [], beds = [], arcadeR3 = [], roomArt = [], secret = {}, ger = {}; let dungeon;
   const base = { fill, put, get, disc, shell };
   {
     const fill = (a, b, c, d, h0, h1, id) => base.fill(a, b, c + DY, d + DY, h0 + U, h1 + U, id);
@@ -270,17 +270,48 @@ export function buildWorld(V) {
     fill(bx + 3, bx + 4, R.y0 > 25 ? R.y1 - 2 : R.y0, (R.y0 > 25 ? R.y1 - 1 : R.y0 + 1), 7, 8, B.walnut); // nightstand
     put(bx + 3, R.y0 > 25 ? R.y1 - 2 : R.y0, 8, B.lamp);
     beds.push({ x: bx + 1.5, y: by + 2.5, h: 9, room: opts.room });
-    tvSpots.push({ x: R.x + 12.9, y: (R.y0 + R.y1) / 2, h: 9, w: 5, h2: 3, face: 'west', room: opts.room });
+    tvSpots.push({ x: R.x + 12.9, y: opts.tvY || (R.y0 + R.y1) / 2, h: 9, w: opts.tvW || 5, h2: 3, face: 'west', room: opts.room });
   };
-  // Room 1, @maxgregerson_22: blue walls, LED strip, gaming battlestation, glass shower, mounted bass
+  // Room 1, @maxgregerson_22: spacious. It runs out over the foyer to twice the depth of the other rooms, so the angled corner wall comes out too.
   {
-    const R = ROOMS[1]; wallsIn(R, B.blueWall, B.charcoal);
-    for (let x = R.x + 1; x < R.x + 13; x++) { put(x, R.y0, 10, B.ledBlue); put(x, R.y1 - 1, 10, B.ledBlue); }
-    for (let y = R.y0; y < R.y1; y++) { put(R.x + 1, y, 10, B.ledBlue); put(R.x + 12, y, 10, B.ledBlue); }
-    kit(R, { room: 1, blanket: B.blueWall });
-    fill(R.x + 9, R.x + 12, R.y0 + 1, R.y0 + 2, 7, 8, B.walnut); fill(R.x + 9, R.x + 12, R.y0 + 1, R.y0 + 2, 8, 10, B.black); put(R.x + 9, R.y0 + 2, 7, B.black);
-    fill(R.x + 8, R.x + 13, R.y1 - 4, R.y1 - 3, 7, 10, B.glass); fill(R.x + 8, R.x + 9, R.y1 - 4, R.y1, 7, 10, B.glass); fill(R.x + 9, R.x + 12, R.y1 - 3, R.y1 - 1, 6, 7, B.marbleW); put(R.x + 12, R.y1 - 1, 10, B.steel);
-    fill(R.x + 3, R.x + 5, R.y0, R.y0 + 1, 10, 11, B.steel);
+    const R = ROOMS[1], N = 1, x0 = R.x + 1, x1 = R.x + 13; // N: the new far wall's inside edge
+    wallsIn(R, B.blueWall, B.charcoal);
+    for (let x = x0; x < x1; x++) for (let y = N; y < R.y1; y++) upper.add(key(x, y + DY)); // So the game knows this is Room 1
+    // Clear the angled wall and the old back wall, then build the extension's shell
+    for (let x = R.x + 1; x < x1; x++) for (let y = N; y < R.y1; y++) for (let h = 7; h < 11; h++) { const c = get(x, y, h); if (c === B.marbleW || c === B.marble || c === B.glass || c === B.stucco || c === B.blueWall || c === B.trim || c === B.gold) put(x, y, h, B.air); }
+    fill(x0, x1, N, R.y0, 6, 7, B.charcoal); fill(x0, x1, N, R.y0, 11, 12, B.panel); fill(x0, x1, N - 1, N, 6, 12, B.blueWall);
+    fill(R.x, R.x + 1, N - 1, R.y1, 7, 12, B.blueWall); fill(x1, x1 + 1, N - 1, R.y1, 7, 12, B.blueWall);
+    fill(R.x + 5, x1 - 1, N - 1, N, 8, 10, B.glass); // A long window looking out over the foyer
+    fill(x0, x1, R.y0 - 2, R.y0, 11, 12, B.panel);
+    fill(x0 + 1, x1 - 1, 4, 18, 11, 12, B.panel);
+    // LED strip all the way around the top of the walls
+    for (let x = x0; x < x1; x++) { put(x, N, 10, B.ledBlue); put(x, R.y1 - 1, 10, B.ledBlue); }
+    for (let y = N; y < R.y1; y++) { put(x0, y, 10, B.ledBlue); put(x1 - 1, y, 10, B.ledBlue); }
+    // Far end, left: the bed, with LEDs around it and the bass mounted above it
+    const by = N + 1, bx = R.x + 2;
+    bed(bx, by, B.blueWall, -1); beds.push({ x: bx + 1.5, y: by + 2, h: 9, room: 1 });
+    for (let x = bx - 1; x < bx + 4; x++) put(x, by + 5, 6, B.ledBlue);
+    for (let y = by; y < by + 5; y++) { put(bx - 1, y, 6, B.ledBlue); put(bx + 3, y, 6, B.ledBlue); }
+    put(bx + 3, by, 7, B.walnut); put(bx + 3, by, 8, B.lamp); // Nightlight
+    roomArt.push({ art: 'bass', x: bx + 1.5, y: by + 0.02, h: 9.5, w: 2.2, h2: 1, face: 'north' });
+    // Far end, right: the battlestation under the window
+    fill(R.x + 7, x1, N, N + 1, 7, 8, B.walnut); fill(x1 - 1, x1, N, N + 1, 8, 10, B.black); put(x1 - 1, N, 10, B.ledPurple);
+    roomArt.push({ art: 'curved', x: R.x + 8.6, y: N + 0.9, h: 9.3, w: 2.4, h2: 1.3, face: 'north' });
+    roomArt.push({ art: 'stocks', x: R.x + 10.8, y: N + 1.02, h: 9.2, w: 1.3, h2: 1, face: 'north' });
+    fill(R.x + 9, R.x + 10, N + 2, N + 3, 7, 8, B.seat);
+    // The middle is open floor: a big rug, a couch, and the racing sim facing the TV
+    fill(R.x + 3, R.x + 9, 9, 16, 6, 7, B.rug);
+    fill(R.x + 1, R.x + 2, 10, 15, 7, 8, B.sofa); fill(R.x + 1, R.x + 2, 10, 15, 8, 9, B.sofa);
+    tvSpots.push({ x: R.x + 12.9, y: 13, h: 9, w: 5, h2: 2.6, face: 'west', room: 1 });
+    fill(R.x + 8, x1 - 1, 12, 14, 6, 7, B.black); fill(R.x + 8, R.x + 9, 12, 14, 7, 9, B.seat); put(R.x + 10, 12, 7, B.steel); put(R.x + 10, 13, 7, B.steel); put(R.x + 10, 12, 8, B.black); put(R.x + 10, 13, 8, B.black);
+    // By the door: walk-in closet on the left, big all-glass shower on the right
+    const c0 = 17;
+    fill(R.x + 1, R.x + 6, c0, c0 + 1, 7, 11, B.blueWall); fill(R.x + 3, R.x + 5, c0, c0 + 1, 7, 10, B.air); fill(R.x + 5, R.x + 6, c0, R.y1, 7, 11, B.blueWall);
+    fill(R.x + 1, R.x + 5, c0 + 1, R.y1, 6, 7, B.rug);
+    { const clothes = [B.red, B.teal, B.pink, B.navy, B.cream, B.charcoal, B.orange]; let c = 0;
+      for (let y = c0 + 1; y < R.y1; y++) fill(R.x + 1, R.x + 2, y, y + 1, 8, 10, clothes[c++ % 7]);
+      for (let x = R.x + 2; x < R.x + 5; x++) fill(x, x + 1, R.y1 - 1, R.y1, 8, 10, clothes[c++ % 7]); }
+    fill(R.x + 8, x1, 17, 18, 7, 10, B.glass); fill(R.x + 8, R.x + 9, 17, R.y1, 7, 10, B.glass); fill(R.x + 9, x1, 18, R.y1, 6, 7, B.marbleW); put(R.x + 12, R.y1 - 1, 10, B.steel); fill(R.x + 8, R.x + 9, 19, 21, 7, 10, B.air); // Way into the shower
   }
   // Room 2, @certifieddxzzy: dark red LED EDM dungeon, DJ stage, speakers, fog, lasers
   dungeon = ROOMS[2];
@@ -288,12 +319,15 @@ export function buildWorld(V) {
     const R = dungeon; wallsIn(R, B.dungeon, B.charcoal, B.black, B.ledRed);
     fill(R.x + 2, R.x + 12, R.y1 - 4, R.y1 - 1, 6, 8, B.dungeon);
     fill(R.x + 4, R.x + 10, R.y1 - 3, R.y1 - 2, 8, 9, B.black); fill(R.x + 5, R.x + 9, R.y1 - 3, R.y1 - 2, 9, 10, B.ledRed);
-    for (const x of [R.x + 1, R.x + 11]) { fill(x, x + 2, R.y1 - 2, R.y1 - 1, 7, 11, B.speaker); }
+    for (const x of [R.x + 5, R.x + 11]) { fill(x, x + 2, R.y1 - 2, R.y1 - 1, 7, 11, B.speaker); } // The left stack stays inside the angled corner
     for (let x = R.x + 2; x < R.x + 12; x += 3) { put(x, R.y0, 10, B.ledRed); put(x, R.y1 - 1, 10, B.ledRed); }
     disc(R.x + 3.5, R.y0 + 3, 2.2, 7, 8, B.stone); disc(R.x + 3.5, R.y0 + 3, 1.3, 7, 8, B.water); disc(R.x + 3.5, R.y0 + 3, 1.3, 6, 7, B.ledRed); // the NOT TEQUILA fountain
     fill(R.x + 5, R.x + 9, R.y0 - 1, R.y0, 10, 11, B.steel); // chains over the door
     bed(R.x + 9, R.y0 + 1, B.red, -1);
     beds.push({ x: R.x + 10.5, y: R.y0 + 3, h: 9, room: 2 });
+    put(R.x + 8, R.y0, 7, B.walnut); put(R.x + 8, R.y0, 8, B.ledRed); // Nightlight
+    tvSpots.push({ x: R.x + 12.9, y: R.y0 + 3, h: 9.4, w: 3.4, h2: 2, face: 'west', room: 2 });
+    roomArt.push({ art: 'chains', x: R.x + 10, y: R.y0 - 1.05, h: 9.1, w: 2.6, h2: 1.7, face: 'south' }); // Out in the hallway, next to the door
   }
   // Room 3, @rudrapratap.singhchauhan_: old arcade with the latest games
   {
@@ -305,7 +339,7 @@ export function buildWorld(V) {
       fill(cx, cx + 2, R.y0, R.y0 + 2, 7, 10, B.black); fill(cx, cx + 2, R.y0, R.y0 + 1, 10, 11, B.ledPink);
       arcadeR3.push({ x: cx + 1, y: R.y0 + 2, h: 8.6, game: g, face: 'north' });
     });
-    bed(R.x + 2, R.y1 - 6, B.pink, 1); beds.push({ x: R.x + 3.5, y: R.y1 - 4, h: 9, room: 3 });
+    bed(R.x + 2, R.y1 - 6, B.pink, 1); beds.push({ x: R.x + 3.5, y: R.y1 - 4, h: 9, room: 3 }); put(R.x + 5, R.y1 - 2, 7, B.walnut); put(R.x + 5, R.y1 - 2, 8, B.ledPink);
     tvSpots.push({ x: R.x + 12.9, y: R.y0 + 7, h: 9, w: 4, h2: 2.4, face: 'west', room: 3 });
   }
   // Room 4, @xentitled: the pyramid guy, sandstone room with a window at Khufu
@@ -330,41 +364,58 @@ export function buildWorld(V) {
     fill(R.x + 9, R.x + 12, 31, 34, 6, 7, B.rug); fill(R.x + 10, R.x + 12, 32, 34, 7, 8, B.seat); put(R.x + 7, 32, 7, B.torch);
     fill(R.x + 1, R.x + 2, 29, 35, 7, 11, B.shelf);
     bed(R.x + 11, 28.5, B.velvet, -1); beds.push({ x: R.x + 12, y: 31, h: 9, room: 6 });
+    // The middle of the house has no outside walls here, so two walls get painted windows onto the street
+    roomArt.push({ art: 'london', x: R.x + 3, y: 28.03, h: 9.2, w: 2.6, h2: 2.4, face: 'north' });
+    roomArt.push({ art: 'london', x: R.x + 9.6, y: 28.03, h: 9.2, w: 1.6, h2: 2.4, face: 'north' });
+    roomArt.push({ art: 'london', x: R.x + 12.95, y: 34.1, h: 9.9, w: 1.2, h2: 1.7, face: 'west' });
+    tvSpots.push({ x: R.x + 12.9, y: 31, h: 9.95, w: 2.8, h2: 1.7, face: 'west', room: 6 });
+    put(R.x + 8, 29, 7, B.walnut); put(R.x + 8, 29, 8, B.lamp); // Nightlight
   }
   // Room 7, @milllehouse: Mongolian ger with orange door, lattice, stove, rugs, stars through the roof ring
   {
     const R = ROOMS[7], cx = R.x + 6.5, cy = 17;
     wallsIn(R, B.felt, B.rug, null, B.lamp);
     disc(cx, cy, 5.8, 7, 11, B.felt, 5); disc(cx, cy, 5, 6, 7, B.rug);
+    // Wooden lattice showing through the felt on the lower wall, then rugs layered on the floor
+    for (let x = R.x; x < R.x + 14; x++) for (let y = 11; y < 24; y++) { const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy); if (d > 5 && d <= 5.8) for (let h = 7; h < 9; h++) if ((x + y + h) % 2 === 0) put(x, y, h, B.oak); }
+    disc(cx, cy, 3.6, 6, 7, B.arcadeRug); disc(cx - 2, cy - 1.5, 1.8, 6, 7, B.teal); disc(cx + 2, cy + 1.8, 1.6, 6, 7, B.red); disc(cx, cy, 1.4, 6, 7, B.orange);
+    Object.assign(ger, { x: cx, y: cy, h: 11 });
     fill(cx - 1, cx + 1, cy + 4.2, cy + 6, 7, 10, B.air);
     disc(cx, cy, 5.8, 11, 12, B.felt); disc(cx, cy, 1.8, 11, 12, B.starCeil); fill(R.x + 5, R.x + 9, cy - 1, cy + 1, 10, 11, B.air);
     fill(cx - 0.5, cx + 0.5, cy - 0.5, cy + 0.5, 7, 8, B.black); put(Math.floor(cx), Math.floor(cy), 8, B.torch);
-    fill(R.x + 7, R.x + 9, 23, 24, 7, 10, B.air);
-    bed(R.x + 8, cy - 3, B.rug, -1); beds.push({ x: R.x + 9.5, y: cy - 1, h: 9, room: 7 });
+    bed(R.x + 3, cy - 3, B.rug, -1); beds.push({ x: R.x + 4.5, y: cy - 1, h: 9, room: 7 });
+    put(R.x + 6, cy - 3, 7, B.walnut); put(R.x + 6, cy - 3, 8, B.lamp); // Nightlight
+    tvSpots.push({ x: R.x + 2.2, y: cy, h: 9.4, w: 2.6, h2: 1.6, face: 'east', room: 7 });
   }
   // Room 8, @jaydon_houle: wanted a portrait. Gets a giant one.
-  { const R = ROOMS[8]; wallsIn(R, B.cream, B.oak); kit(R, { room: 8, blanket: B.seat }); fill(R.x + 8, R.x + 12, 37, 38, 8, 11, B.gold); }
+  { const R = ROOMS[8]; wallsIn(R, B.cream, B.oak); kit(R, { room: 8, blanket: B.seat }); fill(R.x + 7, R.x + 13, 37, 38, 7, 11, B.gold); roomArt.push({ art: 'portrait', handle: 'jaydon_houle', x: R.x + 10, y: 36.97, h: 9, w: 3.7, h2: 3.7, face: 'south' }); }
   // Room 9, @xoxoluvkurt1: default kit
-  { const R = ROOMS[9]; wallsIn(R, B.pink, B.cream); kit(R, { room: 9, blanket: B.pink }); }
+  { const R = ROOMS[9]; wallsIn(R, B.pink, B.cream); kit(R, { room: 9, blanket: B.pink, tvY: 30.2, tvW: 4 }); } // TV stays clear of the angled corner
   // Room 10, @dhee._ven: soooo luxurious, racing rig, private balcony facing the pool
   {
     const x0 = 27, x1 = 33;
-    for (let x = x0; x < x1 + 1; x++) for (let y = 16; y < 34; y++) if (core.has(key(x, y)) && !perimeter(core, x, y)) put(x, y, 6, B.marble);
+    for (let x = x0; x < x1 + 1; x++) for (let y = 12; y < 38; y++) if (core.has(key(x, y)) && !perimeter(core, x, y)) put(x, y, 6, B.marble);
     fill(26, 27, 24, 26, 7, 10, B.air);
     fill(34, 35, 24, 26, 7, 10, B.air); fill(33, 34, 24, 26, 7, 10, B.air);
     fill(34, 39, 22, 28, 6, 7, B.trim); shell(34, 39, 22, 28, 7, 8, B.railGold); fill(34, 35, 24, 26, 7, 8, B.air);
     for (let x = 27; x < 34; x++) for (let y = 12; y < 38; y++) if (core.has(key(x, y)) && !perimeter(core, x, y) && (perimeter(core, x + 1, y) || perimeter(core, x, y + 1) || perimeter(core, x, y - 1))) for (let h = 7; h < 11; h++) { if (y !== 24 && y !== 25) put(x, y, h, B.marbleW); }
     put(29, 20, 11, B.panel); put(29, 30, 11, B.panel); fill(30, 32, 24, 26, 11, 12, B.panel);
-    fill(27, 30, 28, 33, 7, 8, B.gold); fill(27, 30, 28, 32, 8, 9, B.white); fill(27, 30, 32, 33, 8, 9, B.pillow);
-    beds.push({ x: 28.5, y: 30, h: 9, room: 10 });
-    fill(27, 30, 17.5, 20, 7, 8, B.black); fill(27, 28, 17.5, 20, 8, 10, B.black); put(29, 18, 8, B.steel);
-    tvSpots.push({ x: 27.1, y: 19, h: 9.5, w: 3, h2: 2, face: 'east', room: 10 });
+    // Bed and rig sit in the square ends of this room, clear of the angled walls in the middle
+    fill(27, 30, 32, 37, 7, 8, B.gold); fill(27, 30, 32, 36, 8, 9, B.white); fill(27, 30, 36, 37, 8, 9, B.pillow); fill(27, 30, 37, 38, 7, 10, B.gold);
+    beds.push({ x: 28.5, y: 34, h: 9, room: 10 });
+    // Racing rig facing the TV, with the console on its own stand
+    fill(28, 32, 13, 15, 6, 7, B.black); fill(31, 32, 13, 15, 7, 9, B.seat); put(29, 13, 7, B.steel); put(29, 13, 8, B.black); put(29, 14, 7, B.steel); put(29, 14, 8, B.black);
+    fill(27, 28, 16, 17, 7, 8, B.black); put(27, 16, 8, B.white); // The console
+    // Soooo luxurious: velvet, gold, a chandelier and a lamp by the bed
+    fill(28, 33, 22, 28, 6, 7, B.velvet); fill(28, 33, 22, 23, 6, 7, B.gold); fill(28, 33, 27, 28, 6, 7, B.gold);
+    put(30, 36, 7, B.gold); put(30, 36, 8, B.lamp);
+    tvSpots.push({ x: 27.1, y: 14, h: 9.3, w: 4, h2: 2.3, face: 'east', room: 10 });
   }
   }
   roomDoors.forEach((d) => { d.h0 += U; d.y += DY; });
-  [...tvSpots, ...beds, ...arcadeR3].forEach((s) => { s.h += U; s.y += DY; }); secret.door.h0 += U; secret.door.y += DY;
+  [...tvSpots, ...beds, ...arcadeR3, ...roomArt, ger].forEach((s) => { s.h += U; s.y += DY; }); secret.door.h0 += U; secret.door.y += DY;
   // Stair landings reach the hallway
-  fill(-12, -9, 23 + DY, 24 + DY, 13, 18, B.air); fill(-4, 1, 23 + DY, 24 + DY, 13, 18, B.air);
+  fill(-12, -8, 23 + DY, 24 + DY, 13, 18, B.air); fill(-4, 1, 23 + DY, 24 + DY, 13, 18, B.air);
   // Ladder to the roof from the west end of the hallway
   fill(-38, -37, 25 + DY, 26 + DY, 13, 20, B.ladder); fill(-38, -37, 25 + DY, 26 + DY, 20, 21, B.air);
 
@@ -387,7 +438,7 @@ export function buildWorld(V) {
 
   // ---------- Wing rooms ----------
   const lampRow = (i, u0, u1, id = B.panel) => { for (let u = u0 + 2; u < u1 - 1; u += 4) { wf(i, u, u + 1.6, 4, 6, 10, 11, id); wf(i, u, u + 1.6, 13.8, 15.8, 10, 11, id); } };
-  Object.assign(spots, { arcade: [...arcadeR3], tv: tvSpots, beds, roomDoors, frontDoor, partyDoor, secret });
+  Object.assign(spots, { arcade: [...arcadeR3], tv: tvSpots, roomArt, ger, beds, roomDoors, frontDoor, partyDoor, secret });
 
   // Wing 1: Hot Rod Garage. One long bay, cars parked at an angle down both sides, exit door at the far end.
   {
@@ -466,6 +517,10 @@ export function buildWorld(V) {
     wf(7, 1, 14, 1, 18.8, -1, 0, B.marbleW);
     wf(7, 4, 11, 8, 12, 0, 1, B.walnut); wf(7, 4, 11, 8, 12, 1, 2, B.marbleW);
     wf(7, 1.5, 13, 1, 3, 0, 2, B.walnut); wf(7, 1.5, 13, 1, 3, 2, 3, B.marbleW); wf(7, 10, 13, 1, 3, 3, 7, B.steel); wf(7, 3, 6, 1, 1.8, 4, 6, B.walnut);
+    // The other two are for sale as someone's own room: solid walls, and each has its own door on the driveway side. openrooms.js adds the doors and signs.
+    spots.openRooms = [{ id: 'open-a', doorU: 18, signU: 24.5, owner: null }, { id: 'open-b', doorU: 34, signU: 39.5, owner: null }];
+    for (const u of [15, 30]) wf(7, u - 0.8, u + 0.8, 4.9, 14.9, 0, 9, B.stucco); // Closes the arches
+    for (const R of spots.openRooms) wf(7, R.doorU - 1.7, R.doorU + 1.7, 17.6, 21, 0, 4, B.air);
     wf(7, 20, 24, 15, 18, 0, 2, B.lumber); wf(7, 36, 40, 3, 6, 0, 1, B.lumber);
   }
   // Roof: helipad, launch pad

@@ -8,7 +8,7 @@ export function seatSigns(scene, V) {
   const solid = (p) => V.solidW(Math.floor(p.x), Math.floor(p.y), Math.floor(p.z));
   const signs = [];
   scene.children.forEach((o) => {
-    if (o.isMesh && o.geometry.type === 'PlaneGeometry' && o.material.map?.isCanvasTexture && !o.material.transparent) signs.push(o);
+    if (o.isMesh && o.geometry.type === 'PlaneGeometry' && o.material.map?.isCanvasTexture && !o.material.transparent && !o.userData.fixed) signs.push(o); // TVs and room art are placed by hand
   });
 
   const report = [], P = new THREE.Vector3(), N = new THREE.Vector3(), Q = new THREE.Vector3();

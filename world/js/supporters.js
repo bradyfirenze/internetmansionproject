@@ -1,23 +1,21 @@
 // The Supporter Wall and the Forever Wall: two panels either side of the front door, inside the foyer. Separate from the free Hall of Fame.
 // Supporter Wall = small handles. Forever Wall = big names, like a business that wants to stay up for good.
-// DRAFT: only local copies build them, using made-up test names. Set LIVE to true only after Brady approves publishing.
-// Real names go in assets/supporters.json as { "names": ["handle", ...], "big": ["Business Name", ...] }, each one reviewed by Brady first.
+// To add a name once it sells: put it in assets/supporters.json, then publish. "names" is the Supporter Wall, "big" is the Forever Wall. Each one is reviewed by Brady first.
+// With no names, a wall shows YOUR NAME HERE. The walls fill and resize themselves.
 import * as THREE from 'three';
 
-const LIVE = false;
-const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const FONT = 'Anton, Impact, "Arial Narrow", sans-serif';
-const CW = 2048, CH = 1100, HEAD = 270, PAD = 70;
+const CW = 2048, CH = 1100, HEAD = 270, PAD = 70, FOOT = 120;
 
-function draw(x, panel, names, isTest) {
+function draw(x, panel, names) {
   x.fillStyle = '#0b0d12'; x.fillRect(0, 0, CW, CH);
   x.textAlign = 'center'; x.textBaseline = 'alphabetic';
   x.fillStyle = '#f5c518'; x.font = `150px ${FONT}`; x.fillText(panel.title, CW / 2, 160);
   x.fillStyle = '#fff'; x.font = `56px ${FONT}`; x.fillText(panel.line, CW / 2, 238);
   x.fillStyle = '#f5c518'; x.fillRect(PAD, HEAD, CW - PAD * 2, 5);
-  if (isTest) { x.fillStyle = '#ff6a4d'; x.font = `38px ${FONT}`; x.fillText('TEST NAMES, NOT REAL', CW / 2, CH - 24); }
-  const top = HEAD + 30, h = CH - top - (isTest ? 70 : 30), w = CW - PAD * 2;
-  if (!names.length) { x.fillStyle = '#a4aec4'; x.font = `110px ${FONT}`; x.fillText('YOUR NAME COULD BE FIRST', CW / 2, top + h / 2 + 40); return; }
+  x.fillStyle = '#f5c518'; x.font = '700 76px Inter, sans-serif'; x.fillText(`${names.length ? 'WANT YOUR NAME UP?' : 'WANT IT?'} DM @internetmansionproject. 18+.`, CW / 2, CH - 42, CW - PAD * 2);
+  const top = HEAD + 30, h = CH - top - FOOT, w = CW - PAD * 2;
+  if (!names.length) { x.fillStyle = '#fff'; x.font = `230px ${FONT}`; x.fillText('YOUR NAME HERE', CW / 2, top + h / 2 + 80, w); return; }
   // Picks the column count that gives the largest text, so a short list reads big and a long one still fits
   const shown = names.map(panel.format), longest = Math.max(...shown.map((n) => n.length));
   let best = { size: 0, cols: 1 };
@@ -31,7 +29,6 @@ function draw(x, panel, names, isTest) {
 }
 
 export function buildSupporters(game, data) {
-  if (!LIVE && !LOCAL) return;
   const { scene } = game, { G } = data;
   const pos = (px, py, h) => new THREE.Vector3(px, G + h, -py);
   const makePanel = (cx, panel) => {
@@ -41,19 +38,18 @@ export function buildSupporters(game, data) {
     trim.position.copy(pos(cx, 12.06, 4.9)); trim.rotation.y = Math.PI; scene.add(trim);
     const wall = new THREE.Mesh(new THREE.PlaneGeometry(15, 8.06), new THREE.MeshBasicMaterial({ map: tex }));
     wall.position.copy(pos(cx, 12.1, 4.9)); wall.rotation.y = Math.PI; scene.add(wall);
-    return { names: [], paint(isTest) { draw(c.getContext('2d'), panel, this.names, isTest); tex.needsUpdate = true; } };
+    return { names: [], paint() { draw(c.getContext('2d'), panel, this.names); tex.needsUpdate = true; } };
   };
   // The door is between these. Facing the door from inside, the Forever Wall is on your left and the Supporter Wall on your right.
-  const small = makePanel(-21, { title: 'THE SUPPORTER WALL', line: 'THEY HELP BUILD THE BIGGEST HOUSE ON THE INTERNET', format: (n) => '@' + n, maxCols: 10, maxSize: 100, color: '#f4f6fb' });
+  const small = makePanel(-21, { title: 'THE SUPPORTER WALL', line: 'THEY HELP BUILD THE BIGGEST HOUSE ON THE INTERNET', format: (n) => '@' + n.replace(/^@/, ''), maxCols: 10, maxSize: 100, color: '#f4f6fb' });
   const big = makePanel(8, { title: 'THE FOREVER WALL', line: 'THESE NAMES STAY UP FOR GOOD', format: (n) => n.toUpperCase(), maxCols: 3, maxSize: 210, color: '#f5c518' });
 
-  let isTest = false;
-  const paint = () => { small.paint(isTest); big.paint(isTest); };
+  const paint = () => { small.paint(); big.paint(); };
   paint();
   document.fonts?.ready.then(paint);
-  const load = (file) => fetch(file, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); });
   const list = (a) => (Array.isArray(a) ? a : []).filter((n) => typeof n === 'string' && n);
-  (LOCAL ? load('assets/supporters_test.json').then((d) => { isTest = true; return d; }) : load('assets/supporters.json'))
+  fetch('assets/supporters.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then((d) => { small.names = list(d.names); big.names = list(d.big); paint(); })
-    .catch(() => {});
+    .catch(() => {}); // No list means the walls just stay open
+  game.supporterWalls = { small, big, paint };
 }

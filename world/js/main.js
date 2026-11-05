@@ -79,6 +79,8 @@ async function boot() {
   sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.5; scene.add(sun, sun.target);
   scene.fog = new THREE.Fog(0xcfe6fa, 280, 1250);
   const skyU = { top: { value: new THREE.Color() }, hor: { value: new THREE.Color() }, sunDir: { value: new THREE.Vector3() }, sunC: { value: new THREE.Color() }, night: { value: 0 }, t: { value: 0 } };
+  game.skyU = skyU;
+  if (params.has('fps')) setInterval(() => { const i = renderer.info.render; $('owner').textContent = `${game.fps} fps, ${Math.round(i.triangles / 1000)}k tris, ${i.calls} calls`; }, 1000); // Debug: real frame rate on a device
   const sky = new THREE.Mesh(new THREE.SphereGeometry(1800, 32, 16), new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false, uniforms: skyU,
     vertexShader: 'varying vec3 vD; void main(){ vD = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
@@ -164,6 +166,11 @@ async function boot() {
   await setLoad(38, 'Wiring the lights...');
   V.bakeLight();
   await setLoad(48, 'Hanging 1,000 pictures...');
+  // Some picture files keep an old misspelling. Names on screen use the right one.
+  const nameFixes = await fetch('assets/name_fixes.json').then((r) => r.json()).catch(() => ({}));
+  game.displayName = (n) => nameFixes[n] || n;
+  game.lowPower = IS_TOUCH || params.has('low');
+  game.blocks = BLOCKS;
   buildFeatures(game, data, { rooms, faces: facesImg, facesData });
   await setLoad(55, 'Building rooms...');
 
@@ -350,17 +357,30 @@ async function boot() {
 
   // Phone controls
   const stickEl = $('stick'), nub = $('nub');
-  const moveStick = (e) => { const r = stickEl.getBoundingClientRect(), R = r.width / 2; let x = (e.clientX - r.left - R) / R, y = (e.clientY - r.top - R) / R; if (isSideways()) [x, y] = [y, -x]; const L = Math.hypot(x, y); if (L > 1) { x /= L; y /= L; } stick.x = x; stick.y = y; nub.style.transform = `translate(${x * 36}px,${y * 36}px)`; };
+  const readStick = (e, el, knob, out) => { const r = el.getBoundingClientRect(), R = r.width / 2; let x = (e.clientX - r.left - R) / R, y = (e.clientY - r.top - R) / R; if (isSideways()) [x, y] = [y, -x]; const L = Math.hypot(x, y); if (L > 1) { x /= L; y /= L; } out.x = x; out.y = y; knob.style.transform = `translate(${x * 36}px,${y * 36}px)`; };
+  const moveStick = (e) => readStick(e, stickEl, nub, stick);
   stickEl.addEventListener('pointerdown', (e) => { stick.id = e.pointerId; stickEl.setPointerCapture(e.pointerId); moveStick(e); });
   stickEl.addEventListener('pointermove', (e) => { if (e.pointerId === stick.id) moveStick(e); });
   const endStick = () => { stick.id = null; stick.x = stick.y = 0; nub.style.transform = ''; };
   stickEl.addEventListener('pointerup', endStick); stickEl.addEventListener('pointercancel', endStick);
+  // Right stick: hold it over to turn, tap it to jump
+  let tJump = false;
+  const stickR = { x: 0, y: 0, id: null, at: 0, far: 0 }, stickREl = $('stickR'), nubR = $('nubR');
+  stickREl.addEventListener('pointerdown', (e) => { e.preventDefault(); stickR.id = e.pointerId; stickR.at = performance.now(); stickR.far = 0; stickREl.setPointerCapture(e.pointerId); });
+  stickREl.addEventListener('pointermove', (e) => { if (e.pointerId !== stickR.id) return; readStick(e, stickREl, nubR, stickR); stickR.far = Math.max(stickR.far, Math.hypot(stickR.x, stickR.y)); });
+  const endStickR = (tapped) => { if (tapped && performance.now() - stickR.at < 260 && stickR.far < 0.45) { tJump = true; setTimeout(() => { tJump = false; }, 130); } stickR.id = null; stickR.x = stickR.y = 0; nubR.style.transform = ''; };
+  stickREl.addEventListener('pointerup', () => endStickR(true)); stickREl.addEventListener('pointercancel', () => endStickR(false));
   const touchLook = new Map();
   canvas.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') { touchLook.set(e.pointerId, [e.clientX, e.clientY]); canvas.setPointerCapture(e.pointerId); } });
   canvas.addEventListener('pointermove', (e) => { const p = touchLook.get(e.pointerId); if (p) { const mx = e.clientX - p[0], my = e.clientY - p[1], side = isSideways(); look.dx += (side ? my : mx) * 2.1; look.dy += (side ? -mx : my) * 2.1; touchLook.set(e.pointerId, [e.clientX, e.clientY]); } });
   const endL = (e) => touchLook.delete(e.pointerId); canvas.addEventListener('pointerup', endL); canvas.addEventListener('pointercancel', endL);
-  let tJump = false;
-  const jb = $('tJump'); jb.addEventListener('pointerdown', (e) => { e.preventDefault(); tJump = true; }); ['pointerup', 'pointercancel', 'pointerleave'].forEach((n) => jb.addEventListener(n, () => { tJump = false; }));
+  // Reading the Hall of Fame: a quick tap picks a picture for a few seconds, and a free mouse pointer picks whatever it's over. With the mouse locked, the crosshair does it.
+  const tapStart = new Map();
+  canvas.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') tapStart.set(e.pointerId, [e.clientX, e.clientY, performance.now()]); });
+  canvas.addEventListener('pointerup', (e) => { const t = tapStart.get(e.pointerId); tapStart.delete(e.pointerId); if (t && Math.hypot(e.clientX - t[0], e.clientY - t[1]) < 14 && performance.now() - t[2] < 350) game.aim = { x: e.clientX, y: e.clientY, until: performance.now() + 4000 }; });
+  canvas.addEventListener('pointercancel', (e) => tapStart.delete(e.pointerId));
+  canvas.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse' && !document.pointerLockElement) game.aim = { x: e.clientX, y: e.clientY, hover: true }; });
+  canvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') game.aim = null; });
   $('tFly').addEventListener('pointerdown', (e) => { e.preventDefault(); toggleFly(); });
   const ub = $('tUse'); ub.addEventListener('pointerdown', (e) => { e.preventDefault(); pressUse(); }); ['pointerup', 'pointercancel', 'pointerleave'].forEach((n) => ub.addEventListener(n, () => releaseUse()));
 
@@ -487,6 +507,8 @@ async function boot() {
     } else {
       // Look
       const sens = 0.0022;
+      // Further over turns faster, so small nudges stay precise. Tiny movement from a tap doesn't count.
+      if (stickR.id !== null && Math.hypot(stickR.x, stickR.y) > 0.18) { look.dx += stickR.x * Math.abs(stickR.x) * 1180 * dt; look.dy += stickR.y * Math.abs(stickR.y) * 730 * dt; }
       player.yaw -= look.dx * sens; player.pitch = Math.max(-1.55, Math.min(1.55, player.pitch - look.dy * sens)); look.dx = look.dy = 0;
       // Move
       const input = {
@@ -536,7 +558,14 @@ async function boot() {
       game.room = room;
       const P = data.spots.pyramids.khufu;
       if (Math.hypot(player.pos.x - P.x, -player.pos.z - P.y) < 4 && player.pos.y > G + 44) game.achieve('summit');
-      const lbl = game.hallLabel && game.hallLabel(); const fe = $('face');
+      const fe = $('face'), aim = game.aim; let lbl = null, at = null;
+      if (aim && game.hallLabel && (aim.hover ? !document.pointerLockElement : performance.now() < aim.until)) {
+        const side = isSideways(), w = side ? innerHeight : innerWidth, h = side ? innerWidth : innerHeight, gx = side ? aim.y : aim.x, gy = side ? innerWidth - aim.x : aim.y;
+        lbl = game.hallLabel(new THREE.Vector3(gx / w * 2 - 1, 1 - gy / h * 2, 0.5).unproject(camera).sub(camera.position).normalize());
+        if (lbl) at = [Math.min(w - 100, Math.max(100, gx)), Math.max(10, gy - 44)];
+      }
+      if (!lbl) lbl = (game.hallLabel && game.hallLabel()) || (game.residentLabel && game.residentLabel(dt));
+      fe.style.left = at ? at[0] + 'px' : ''; fe.style.top = at ? at[1] + 'px' : '';
       if (lbl) { fe.hidden = false; fe.textContent = lbl; } else fe.hidden = true;
 
       // Music fades with distance from its source

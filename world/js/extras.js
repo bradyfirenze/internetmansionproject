@@ -42,10 +42,10 @@ export function buildExtras(game, data, H) {
 
   // ---------- Elevators ----------
   const $ = (id) => document.getElementById(id);
-  const makeElevator = ({ x, y, floors, title = 'ELEVATOR' }) => {
+  const makeElevator = ({ x, y, floors, title = 'ELEVATOR', wide = 3 }) => {
     const cabin = new THREE.Group(), gold = new THREE.MeshBasicMaterial({ color: 0xc9a227 });
     const bar = (w, h, d, px, py, pz) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), gold); m.position.set(px, py, pz); cabin.add(m); };
-    bar(3, 0.25, 4, 0, 0, 0); bar(3, 0.25, 4, 0, 3.4, 0); [[-1.4, -1.9], [1.4, -1.9], [-1.4, 1.9], [1.4, 1.9]].forEach(([a, c]) => bar(0.15, 3.4, 0.15, a, 1.7, c));
+    bar(wide, 0.25, 4, 0, 0, 0); bar(wide, 0.25, 4, 0, 3.4, 0); [[-1, -1.9], [1, -1.9], [-1, 1.9], [1, 1.9]].forEach(([a, c]) => bar(0.15, 3.4, 0.15, a * (wide / 2 - 0.1), 1.7, c));
     cabin.position.copy(P3(x, y, floors[0].h)); scene.add(cabin);
     let moving = false;
     const go = (f) => {
@@ -75,7 +75,7 @@ export function buildExtras(game, data, H) {
   };
   $('elevatorClose').onclick = () => { $('elevator').hidden = true; game.lock(true); };
   game.makeElevator = makeElevator;
-  makeElevator({ x: spots.elevator.x, y: spots.elevator.y, floors: [{ n: 'Foyer', h: 0, out: spots.elevator.y - 4 }, { n: 'Rooms', h: 13, out: spots.elevator.y + 3.6 }, { n: 'Roof', h: 19, out: spots.elevator.y + 3.6 }] });
+  makeElevator({ x: spots.elevator.x, y: spots.elevator.y, wide: 2, floors: [{ n: 'Foyer', h: 0, out: spots.elevator.y - 4 }, { n: 'Rooms', h: 13, out: spots.elevator.y + 3.6 }, { n: 'Roof', h: 19, out: spots.elevator.y + 3.6 }] });
 
   // ---------- Festival stage ----------
   {
@@ -142,7 +142,8 @@ export function buildExtras(game, data, H) {
       on = false; beams.visible = false; rig.visible = false; confetti.visible = false; song.pause(); beat = 0; draw(0);
     };
     song.addEventListener('ended', () => { if (on) { stopShow(); song.currentTime = 0; game.notice('That was FRIENDS. Press the button to run it back.'); } });
-    button(P3(S.x, S.y - 1, S.h), 0xff3f9a, () => on ? 'Stop the song' : 'Play FRIENDS', () => {
+    const songLabel = () => on ? 'Stop the song' : 'Play FRIENDS';
+    const toggleSong = () => {
       sound.fx('click');
       if (on) { stopShow(); return; }
       on = true; beams.visible = true; rig.visible = true; confetti.visible = true; game.achieve('stage');
@@ -150,7 +151,10 @@ export function buildExtras(game, data, H) {
       if (song.error) song.load(); // A failed try shouldn't stop the next one
       else if (song.ended) song.currentTime = 0;
       const p = song.play(); if (p) p.catch((e) => { if (e.name !== 'AbortError') songFailed(); }); // AbortError just means it was stopped straight away
-    });
+    };
+    button(P3(S.x, S.y - 1, S.h), 0xff3f9a, songLabel, toggleSong);
+    // Anywhere on the stage works, facing any way. The stage is 96 to 146 across, 92 to 112 deep, with its floor 3 up.
+    addE({ pos: P3(121, 102, 3), r: 28, any: true, active: () => { const x = player.pos.x, y = -player.pos.z, h = player.pos.y - G; return x >= 95 && x <= 147 && y >= 91 && y <= 113 && h >= 2.5 && h < 12; }, prompt: songLabel, use: toggleSong });
     tick((dt, t) => {
       if (!on) return;
       // Follow the kick drum: compare the low end right now with the last second or so

@@ -1,15 +1,15 @@
-// Signup gate. Runs apart from the 3D code, so a signup still saves if the world is slow or can't load.
+// Short gate for playing: handle, room, a contact box that can stay blank, and the 13+ check. The full RSVP lives on its own page.
+// Runs apart from the 3D code, so a signup still saves if the world is slow or can't load.
 // Uses the same Google Sheet and script as the RSVP page, so there is one list.
 (function () {
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzrXaiwLzOEsHZmQ6K9aYMmTniFYCrApmrzUoanpTTBbgFFlmPjzmujxv4gRQELFUPA/exec';
   var SIGNED = 'imp_signed', PENDING = 'imp_pending', TIMEOUT_MS = 20000;
   var $ = function (id) { return document.getElementById(id); };
-  var contact = 'text';
 
   // Copies running on this Mac never write to the real sheet.
   var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-  // Errors the person can fix in the form. Anything else is the sheet having trouble, not them.
-  var FIXABLE = /^(Enter|Pick|Check|You have to be)/;
+  // Errors the person can fix in this form. Anything else, like a script that isn't updated yet, is not theirs to fix: let them in and resend later.
+  var FIXABLE = /^(Enter your|Enter a valid|Pick a room|Check the box|You have to be)/;
 
   function post(body) {
     if (LOCAL) return Promise.resolve({ ok: true });
@@ -28,7 +28,7 @@
     localStorage.setItem('imp_name', handle);
     $('name').value = handle;
     $('inHead').textContent = returning ? 'WELCOME BACK, @' + handle : "YOU'RE IN, @" + handle;
-    $('inSub').textContent = room ? 'VIP. ' + room + '.' : 'VIP.';
+    $('inSub').textContent = room || '';
     $('title').classList.add('in');
   }
 
@@ -46,43 +46,26 @@
 
   function check(d) {
     if (!/^(?!.*\.\.)(?!\.)(?!.*\.$)[a-z0-9._]{1,30}$/.test(d.handle)) return 'Enter your real Instagram handle.';
-    if (d.contact === 'text') {
-      var digits = d.phone.replace(/\D/g, '');
-      if (!/^\+?[\d\s().-]+$/.test(d.phone) || digits.length < 10 || digits.length > 15) return 'Enter a valid phone number.';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email)) return 'Enter a valid email.';
-    if (!d.city) return 'Enter your city.';
     if (!d.room) return 'Pick a room.';
-    if (!d.age) return 'Pick your age group.';
-    if (d.age === 'under13') return 'You have to be at least 13 to sign up.';
+    if (d.reach) {
+      var digits = d.reach.replace(/\D/g, '');
+      var isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.reach);
+      var isPhone = /^\+?[\d\s().-]+$/.test(d.reach) && digits.length >= 10 && digits.length <= 15;
+      if (!isEmail && !isPhone) return 'Enter a valid email or phone number.';
+    }
     if (!d.agree) return 'Check the box to get in.';
     return '';
   }
-
-  function setContact(next) {
-    contact = next;
-    $('suText').classList.toggle('on', next === 'text');
-    $('suEmail').classList.toggle('on', next === 'email');
-    $('suPhone').hidden = next !== 'text';
-    $('suMail').hidden = next !== 'email';
-    $('suVerb').textContent = next;
-  }
-
-  $('suText').onclick = function () { setContact('text'); };
-  $('suEmail').onclick = function () { setContact('email'); };
 
   $('signup').onsubmit = function (ev) {
     ev.preventDefault();
     $('suErr').hidden = true;
     var d = {
+      kind: 'play',
       handle: $('suHandle').value.trim().replace(/^@/, '').toLowerCase(),
-      contact: contact,
-      phone: contact === 'text' ? $('suPhone').value.trim() : '',
-      email: contact === 'email' ? $('suMail').value.trim() : '',
-      city: $('suCity').value.trim(),
       room: $('suRoom').value,
-      age: $('suAge').value,
+      reach: $('suReach').value.trim(),
       agree: $('suAgree').checked,
-      roster: false, picture: '',
       website: $('suTrap').value
     };
     var problem = check(d);
@@ -110,7 +93,7 @@
     }).catch(function () {});
   }
 
-  // Testing skips the form and sends nothing. ?test or ?test=name works anywhere; this Mac skips it anyway (?signup shows it).
+  // Testing on this Mac skips the form and sends nothing. Add ?signup to the address to see it.
   var query = new URLSearchParams(location.search);
   var skipAs = function (name) {
     $('name').value = name;
@@ -118,7 +101,6 @@
     $('title').classList.add('in');
   };
   var signed = localStorage.getItem(SIGNED);
-  if (query.has('test')) skipAs((query.get('test') || '').replace(/[^\w. -]/g, '').slice(0, 30) || 'Guest ' + Math.floor(100 + Math.random() * 900));
-  else if (signed) letIn(signed, '', true);
+  if (signed) letIn(signed, '', true);
   else if (LOCAL && !query.has('signup')) skipAs('brady');
 })();

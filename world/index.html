@@ -44,7 +44,7 @@
 <!-- Phone controls -->
 <div id="touch" hidden>
   <div id="stick"><div id="nub"></div></div>
-  <button id="tJump">JUMP</button>
+  <div id="stickR"><div id="nubR"></div><span>TAP TO JUMP</span></div>
   <button id="tFly">FLY</button>
   <button id="tUse" hidden>USE</button>
 </div>
@@ -55,33 +55,25 @@
     <div class="tKicker">THE BIGGEST HOUSE ON THE INTERNET</div>
     <h1>THE INTERNET<br>MANSION</h1>
     <form id="signup" novalidate>
-      <h2>SIGN UP TO GET IN</h2>
-      <p class="suLead">The whole mansion is playable. Sign up and you can walk in right now. Signing up also makes you an IMP VIP.</p>
+      <h2>WALK IN</h2>
+      <p class="suLead">The whole mansion is playable. Pick your room and you're in.</p>
       <input id="suHandle" placeholder="Instagram @handle" maxlength="31" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <div class="suTabs"><button type="button" id="suText" class="on">Text</button><button type="button" id="suEmail">Email</button></div>
-      <input id="suPhone" type="tel" placeholder="Phone number" autocomplete="tel">
-      <input id="suMail" type="email" placeholder="Email" autocomplete="email" autocapitalize="off" spellcheck="false" hidden>
-      <input id="suCity" placeholder="City" maxlength="80" autocomplete="off">
       <select id="suRoom">
         <option value="">Which room do you want to live in?</option>
         <option>Sports Stadium</option><option>Gaming Room</option><option>Backyard Party</option><option>Party Room</option><option>Chill Lounge</option>
         <option>Music Studio</option><option>Art Gallery</option><option>Designer Closet</option><option>Hot Rod Garage</option><option>Movie Theater</option>
       </select>
-      <select id="suAge">
-        <option value="">Your age</option>
-        <option value="under13">Under 13</option><option value="13-17">13 to 17</option><option value="18+">18+</option>
-      </select>
+      <input id="suReach" type="text" inputmode="email" placeholder="Email or phone number" maxlength="200" autocomplete="off" autocapitalize="off" spellcheck="false">
       <div class="suTrap" aria-hidden="true"><input id="suTrap" tabindex="-1" autocomplete="off"></div>
-      <label class="suCheck"><input id="suAgree" type="checkbox"><span>I follow <a href="https://www.instagram.com/internetmansionproject/" target="_blank" rel="noopener">@internetmansionproject</a>, I agree to the rules, and you can <span id="suVerb">text</span> me about the mansion.</span></label>
+      <label class="suCheck"><input id="suAgree" type="checkbox"><span>I'm 13 or older and agree to the rules.</span></label>
       <div id="suErr" role="alert" hidden></div>
       <button id="suGo" type="submit">LET ME IN</button>
       <details class="suRules">
         <summary>Rules</summary>
         <ul>
-          <li>You must be at least 13 to sign up.</li>
-          <li>Signing up lets you into the world and makes you a VIP.</li>
-          <li>VIP doesn't guarantee entry to any real-life event.</li>
+          <li>You must be at least 13 to play.</li>
           <li>Picking a room is your place in the community. It doesn't mean a room gets built for you.</li>
+          <li>If you leave an email or phone number, we may contact you about the mansion.</li>
           <li><a href="https://internetmansionproject.com/privacy.html" target="_blank" rel="noopener">Privacy policy</a></li>
         </ul>
       </details>
@@ -93,7 +85,7 @@
       <input id="name" type="hidden">
       <button id="enter">WALK IN</button>
       <div class="keys" id="keysDesk"><b>WASD</b> move <b>Mouse</b> look <b>Space</b> jump <b>Shift</b> sprint <b>F</b> fly <b>E</b> use <b>V</b> camera <b>M</b> map <b>Tab</b> list <b>N</b> day or night <b>R</b> who chose this room <b>P</b> play with a friend <b>Esc</b> free your mouse</div>
-      <div class="keys" id="keysTouch" hidden>Left thumb moves. Right thumb looks. Tap USE when it shows up.</div>
+      <div class="keys" id="keysTouch" hidden>Left stick moves. Right stick turns, tap it to jump. Tap USE when it shows up.</div>
     </div>
     <div id="noGL" hidden>This browser could not start 3D. Try Safari or Chrome directly instead of an in-app browser.</div>
   </div>

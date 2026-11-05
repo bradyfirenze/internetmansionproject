@@ -5,6 +5,9 @@ import { litProp } from './voxels.js';
 import { GAMES } from './arcade.js';
 import { buildCars } from './cars.js';
 import { buildExtras } from './extras.js';
+import { buildRoomArt } from './roomart.js';
+import { buildOpenRooms } from './openrooms.js';
+import { buildResidents } from './residents.js';
 import { buildStadium } from './stadium.js';
 import { seatSigns } from './signs.js';
 
@@ -379,21 +382,30 @@ export function buildFeatures(game, data, assets) {
   }, 1.22, 0.05);
   game.hofSlots = hofSlots;
   scene.add(hof);
-  game.hallLabel = () => {
-    // Which face is the crosshair on?
-    if (Math.hypot(player.pos.x - rC.x, player.pos.z - rC.z) > RT.r) return null;
-    const cam = game.camera, dir = new THREE.Vector3(); cam.getWorldDirection(dir);
+  // Gold outline on the picture being read, so it's clear in play and in footage whose name it is
+  const hallMark = new THREE.Mesh(new THREE.PlaneGeometry(1.42, 1.42), new THREE.MeshBasicMaterial({ color: 0xf5c518 })); hallMark.visible = false; scene.add(hallMark);
+  const hallFaceAt = (aim) => {
+    if (Math.hypot(player.pos.x - rC.x, player.pos.z - rC.z) > RT.r) return undefined;
+    const cam = game.camera, dir = aim || cam.getWorldDirection(new THREE.Vector3());
     const ox = cam.position.x - rC.x, oz = cam.position.z - rC.z, A = dir.x * dir.x + dir.z * dir.z, Bq = 2 * (ox * dir.x + oz * dir.z), Cq = ox * ox + oz * oz - FACE_R * FACE_R;
-    const disc = Bq * Bq - 4 * A * Cq; if (disc < 0 || A < 1e-4) return null;
-    const t = (-Bq + Math.sqrt(disc)) / (2 * A); if (t > 16) return null;
+    const disc = Bq * Bq - 4 * A * Cq; if (disc < 0 || A < 1e-4) return undefined;
+    const t = (-Bq + Math.sqrt(disc)) / (2 * A); if (t > 45) return undefined; // Far enough for the top row from the floor
+    for (let s = 0.5; s < t - 0.3; s += 0.3) if (V.solidW(cam.position.x + dir.x * s, cam.position.y + dir.y * s, cam.position.z + dir.z * s)) return undefined; // No reading through the stairs or balconies
     const hx = ox + dir.x * t, hz = oz + dir.z * t, hy = cam.position.y + dir.y * t;
-    const row = Math.round((hy - G - 1.6) / rowH); if (row < 0 || row > faceRows) return null;
+    const row = Math.round((hy - G - 1.6) / rowH); if (row < 0 || row > faceRows) return undefined;
     let a = Math.atan2(-hz, hx) - 0.25 - row * 0.03; while (a < 0) a += 6.283; while (a >= 6.283) a -= 6.283;
-    const col = Math.round(a / 6.283 * faceCols) % faceCols, i = hofIndex.get(row * faceCols + col);
-    return i !== undefined && FG.names[i] ? '@' + FG.names[i] : null;
+    const col = Math.round(a / 6.283 * faceCols) % faceCols;
+    return hofIndex.get(row * faceCols + col);
+  };
+  // Reads the crosshair, or a mouse or tap direction when one is passed in. Spellings come from assets/name_fixes.json, through displayName.
+  game.hallLabel = (aim) => {
+    const i = hallFaceAt(aim); hallMark.visible = i !== undefined && !!FG.names[i];
+    if (!hallMark.visible) return null;
+    const { a, h } = hofSlots[i]; hallMark.position.set(rC.x + Math.cos(a) * (FACE_R + 0.03), G + h, rC.z - Math.sin(a) * (FACE_R + 0.03)); hallMark.lookAt(rC.x, hallMark.position.y, rC.z);
+    return '@' + game.displayName(FG.names[i]);
   };
   // Rotunda sign and the guard joke
-  sign(P3(-49.5, 25, 3), 'HALL OF FAME. First 1,000 followers. Look at a picture to read the name.');
+  sign(P3(-49.5, 25, 3), 'HALL OF FAME. First 1,000 followers. Point at or tap a picture to read the name.');
   sign(P3(-39, 21.5, 1.2), 'Hall of Fame guard post. @5star.battle applied for this job in the comments.');
 
   function sign(pos, text) { addE({ pos, r: 3.2, prompt: () => 'Read the sign', use: () => { game.notice(text); sound.fx('click'); } }); }
@@ -477,7 +489,6 @@ export function buildFeatures(game, data, assets) {
   }
   sign(P3(spots.grill.x, spots.grill.y, spots.grill.h), 'Grill is on. Nobody knows who turned it on.');
   sign(P3(spots.sphinx.x, spots.sphinx.y, spots.sphinx.h), 'The Sphinx asks: what has a thousand followers and no legs? It already knows. It is watching you read this.');
-  { const [x, y] = W[7].P(22, 9.9); sign(P3(x, y, 1.5), 'Empty room. Soon you can claim one of these and put your name on it.'); }
 
   // ---------- Arcade cabinets ----------
   const screenTex = {};
@@ -503,7 +514,7 @@ export function buildFeatures(game, data, assets) {
     const pos = P3(T.x + face * 0.03, T.y, T.h);
     const frame = box(0.1, T.h2 + 0.2, T.w + 0.2, new THREE.MeshBasicMaterial({ color: 0x0a0a0e })); frame.position.copy(pos); frame.position.x -= face * 0.04; scene.add(frame);
     const scr = new THREE.Mesh(new THREE.PlaneGeometry(T.w, T.h2), new THREE.MeshBasicMaterial({ map: channels[0] }));
-    scr.position.copy(pos); scr.position.x += face * 0.04; scr.rotation.y = face > 0 ? Math.PI / 2 : -Math.PI / 2; scene.add(scr);
+    scr.position.copy(pos); scr.position.x += face * 0.04; scr.rotation.y = face > 0 ? Math.PI / 2 : -Math.PI / 2; scr.userData.fixed = true; scene.add(scr);
     let ch = 0;
     addE({ pos: pos.clone(), r: 6, prompt: () => 'Change the channel', use: () => { ch = (ch + 1) % channels.length; scr.material.map = channels[ch]; scr.material.needsUpdate = true; sound.fx('click'); } });
   }
@@ -513,7 +524,7 @@ export function buildFeatures(game, data, assets) {
   {
     const m = litProp(0x5a7a48); const fish = box(1.6, 0.5, 0.15, m); fish.position.copy(P3(-39 + 3.5, 62.05, 15.8)); scene.add(fish); envAt(m, fish.position);
     const tail = box(0.4, 0.6, 0.1, m); tail.position.set(fish.position.x + 0.9, fish.position.y, fish.position.z); scene.add(tail);
-    sign(P3(-39 + 3.5, 63, 15), 'A 10 lb bass, mounted, as requested by @maxgregerson_22.');
+    sign(P3(-35.5, 53.5, 15), 'A 10 lb bass, mounted, as requested by @maxgregerson_22.');
   }
   // Racing rigs: Max's and Dhee's
   sign(P3(-39 + 10, 63.5, 14.2), 'Curved monitor, stocks on the second screen. Racing sim is warming up.');
@@ -611,12 +622,13 @@ export function buildFeatures(game, data, assets) {
     ['under the movie screen', W[3].P(28.4, 9.9)[0], W[3].P(28.4, 9.9)[1], 0.6], ['the back of the studio', W[3].P(44, 4)[0], W[3].P(44, 4)[1], 5.4],
     ['the unfinished wing', W[3].P(58, 3)[0], W[3].P(58, 3)[1], 0.6], ['the lounge bookcase', W[5].P(2.5, 16.5)[0], W[5].P(2.5, 16.5)[1], 5.4],
     ['the gallery pedestal', W[5].P(21.8, 10)[0], W[5].P(21.8, 10)[1], 3.6], ['the closet island', W[5].P(41.5, 10)[0], W[5].P(41.5, 10)[1], 1.6],
+    // The empty bedroom spot is in an open Wing 7 room that's for sale: move this gold brick if that room sells.
     ['the empty bedroom', W[7].P(42, 16)[0], W[7].P(42, 16)[1], 0.6], ['the roof helipad', -28, 75, 20], ['a wing roof', W[3].P(50, 9.9)[0], W[3].P(50, 9.9)[1], 13.8],
     ['the party dome roof', -6, 112, 26.8], ['the DJ stage', -6, 127.5, 4.8], ['the top of the rotunda', -63, 25, 33.5], ['the rotunda ramp', -63 + Math.cos(10.4) * 11, 25 + Math.sin(10.4) * 11, 17.2],
     ['the crane jib', 78, 25, 26.8], ['the bottom of the pool', 62, 34, -4.2], ['the slide tower', 28, 24, 20.4], ['the top of Khafre', K.khafre.x, K.khafre.y, K.khafre.h + 0.6],
     ['the top of Menkaure', K.menkaure.x, K.menkaure.y, K.menkaure.h + 0.6], ["the King's Chamber", -28.5, 159, 3.6], ['the tunnel', -60, 179.5, 0.6],
     ['the Sphinx', 32, 132, 11.6], ['the station roof', spots.stations[0].x, spots.stations[0].y, 8.8], ['the top of the giant sign', -6, 41, 56],
-    ['the secret room', -9, 88, 14.6], ['the bass', -36, 63, 15.6], ['the 50 yard line', -262, 30, 0.8], ['the top row of the stadium', -262, 160.5, 62], ['the locker room', -262, 150, 1], ['a luxury box', -194, 30, 26.5], ['the scoreboard', -262, -100, 77], ['the yurt stove', 6.5, 66.2, 15.6], ['the speedway grandstand', 170, -16, 6.6], ['the festival stage', 104, 104, 4], ['the top of the stage', 121, 100, 31], ['the bridge', -6, -62, 9],
+    ['the secret room', -9, 88, 14.6], ['the bass', -35.5, 53.6, 16], ['the 50 yard line', -262, 30, 0.8], ['the top row of the stadium', -262, 160.5, 62], ['the locker room', -262, 150, 1], ['a luxury box', -194, 30, 26.5], ['the scoreboard', -262, -100, 77], ['the yurt stove', 6.5, 66.2, 15.6], ['the speedway grandstand', 170, -16, 6.6], ['the festival stage', 104, 104, 4], ['the top of the stage', 121, 100, 31], ['the bridge', -6, -62, 9],
   ];
   const goldBricks = [];
   const gMat = new THREE.MeshBasicMaterial({ color: 0xffc41f }), gGeo = new THREE.BoxGeometry(0.9, 0.42, 0.45);
@@ -663,9 +675,12 @@ export function buildFeatures(game, data, assets) {
     const k = text + gold; if (!labelCache.has(k)) labelCache.set(k, textCanvas(Math.round(w * 64), Math.round(h * 64), (c, W2, H2) => { c.fillStyle = gold ? '#f5c518' : '#10131c'; c.fillRect(0, 0, W2, H2); c.strokeStyle = '#f5c518'; c.lineWidth = 3; c.strokeRect(1.5, 1.5, W2 - 3, H2 - 3); c.fillStyle = gold ? '#1c1200' : '#f5c518'; let fs = H2 * 0.68; c.font = `${fs}px ${DISPLAY}`; while (c.measureText(text).width > W2 - 14 && fs > 10) { fs -= 1; c.font = `${fs}px ${DISPLAY}`; } c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, W2 / 2, H2 / 2 + 2); }));
     const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: labelCache.get(k) })); m.position.copy(pos); m.rotation.y = rotY; scene.add(m); return m;
   };
-  const H = { P3, addE, tick, textCanvas, DISPLAY, label, button, musicAt };
+  const H = { P3, addE, tick, textCanvas, DISPLAY, label, button, musicAt, litProp, envAt, faces: assets.faces, facesData: assets.facesData };
   game.carsData = buildCars(game, data, H);
   buildExtras(game, data, H);
+  buildRoomArt(game, data, H);
+  buildOpenRooms(game, data, H); // Before the crowd, so nobody gets placed on its doors or signs
+  if (!/[?&]nocrowd\b/.test(location.search)) buildResidents(game, data, H);
   buildStadium(game, data, H);
   game.signReport = seatSigns(scene, V); // Last, so it sees every sign that was built above.
 
@@ -673,6 +688,7 @@ export function buildFeatures(game, data, assets) {
   const roomsDir = assets.rooms.reduce((a, r) => { a[r.room] = r.handle; return a; }, {});
   const winnerAt = (x, y0) => {
     const y = y0 - data.DY;
+    if (x >= -39 && x < -26 && y >= 0 && y < 10) return 1; // Room 1's extension over the foyer
     if (x >= 27 && x < 34 && y > 15 && y < 35) return 10;
     const k = Math.floor((x + 39) / 13); if (k < 0 || k > 4) return null;
     if (y >= 28 && y < 40) return [2, 4, 6, 8, 9][k];
