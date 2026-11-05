@@ -14,10 +14,12 @@ import { runGame, GAMES } from './arcade.js';
 import { Sound } from './audio.js';
 import { buildRoster } from './roster.js';
 import { buildTwoPlayer } from './twoplayer.js';
+import { buildSupporters } from './supporters.js';
 
 const $ = (id) => document.getElementById(id);
 const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window && innerWidth < 900;
 const params = new URLSearchParams(location.search);
+const isSideways = () => document.body.classList.contains('sideways');
 const G = WORLD.GROUND;
 const setLoad = (p, t) => { $('loadBar').style.width = p + '%'; if (t) $('loadText').textContent = t; return new Promise((r) => setTimeout(r, 0)); };
 
@@ -320,6 +322,7 @@ async function boot() {
   document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => toggleSheet(b.dataset.close, false)));
   const openRoster = () => { if (game.toggleRoster()) toggleSheet('roster', true); };
   buildRoster(game); $('rosterBtn').onclick = openRoster;
+  buildSupporters(game, data);
   $('btnFriend').onclick = () => toggleSheet('twoPlayer');
   $('pFriend').onclick = () => { $('paused').hidden = true; toggleSheet('twoPlayer', true); };
   game.closeTwoPlayer = () => toggleSheet('twoPlayer', false);
@@ -347,14 +350,14 @@ async function boot() {
 
   // Phone controls
   const stickEl = $('stick'), nub = $('nub');
-  const moveStick = (e) => { const r = stickEl.getBoundingClientRect(), R = r.width / 2; let x = (e.clientX - r.left - R) / R, y = (e.clientY - r.top - R) / R; const L = Math.hypot(x, y); if (L > 1) { x /= L; y /= L; } stick.x = x; stick.y = y; nub.style.transform = `translate(${x * 36}px,${y * 36}px)`; };
+  const moveStick = (e) => { const r = stickEl.getBoundingClientRect(), R = r.width / 2; let x = (e.clientX - r.left - R) / R, y = (e.clientY - r.top - R) / R; if (isSideways()) [x, y] = [y, -x]; const L = Math.hypot(x, y); if (L > 1) { x /= L; y /= L; } stick.x = x; stick.y = y; nub.style.transform = `translate(${x * 36}px,${y * 36}px)`; };
   stickEl.addEventListener('pointerdown', (e) => { stick.id = e.pointerId; stickEl.setPointerCapture(e.pointerId); moveStick(e); });
   stickEl.addEventListener('pointermove', (e) => { if (e.pointerId === stick.id) moveStick(e); });
   const endStick = () => { stick.id = null; stick.x = stick.y = 0; nub.style.transform = ''; };
   stickEl.addEventListener('pointerup', endStick); stickEl.addEventListener('pointercancel', endStick);
   const touchLook = new Map();
   canvas.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') { touchLook.set(e.pointerId, [e.clientX, e.clientY]); canvas.setPointerCapture(e.pointerId); } });
-  canvas.addEventListener('pointermove', (e) => { const p = touchLook.get(e.pointerId); if (p) { look.dx += (e.clientX - p[0]) * 2.1; look.dy += (e.clientY - p[1]) * 2.1; touchLook.set(e.pointerId, [e.clientX, e.clientY]); } });
+  canvas.addEventListener('pointermove', (e) => { const p = touchLook.get(e.pointerId); if (p) { const mx = e.clientX - p[0], my = e.clientY - p[1], side = isSideways(); look.dx += (side ? my : mx) * 2.1; look.dy += (side ? -mx : my) * 2.1; touchLook.set(e.pointerId, [e.clientX, e.clientY]); } });
   const endL = (e) => touchLook.delete(e.pointerId); canvas.addEventListener('pointerup', endL); canvas.addEventListener('pointercancel', endL);
   let tJump = false;
   const jb = $('tJump'); jb.addEventListener('pointerdown', (e) => { e.preventDefault(); tJump = true; }); ['pointerup', 'pointercancel', 'pointerleave'].forEach((n) => jb.addEventListener(n, () => { tJump = false; }));
@@ -429,7 +432,7 @@ async function boot() {
     if (IS_TOUCH) { $('touch').hidden = false; document.documentElement.requestFullscreen?.().catch(() => {}); }
     started = true; tryLock();
     game.twoPlayerAutoJoin();
-    game.notice(IS_TOUCH ? 'Welcome to the lot. Everything you see was picked in the comments. Tap List for things to try.' : 'Welcome to the lot. Press Esc any time to free your mouse for the map, view and day or night buttons.');
+    game.notice(IS_TOUCH ? `Welcome to the lot. Everything you see was picked in the comments. Tap List for things to try${innerWidth > innerHeight ? '' : ', or Turn sideways to play wide'}.` : 'Welcome to the lot. Press Esc any time to free your mouse for the map, view and day or night buttons.');
   };
 
   // ---------- Debug hook for testing ----------
@@ -437,7 +440,19 @@ async function boot() {
 
   // ---------- Main loop ----------
   const clockT = new THREE.Clock(); let cullT = 0, roomPrev = '', time = 0, shadowT = 0, lastPos = new THREE.Vector3(1e9, 0, 0), roomId = '', miniT = 0, frames = 0, fpsT = 0;
-  addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); if (composer) composer.setSize(innerWidth, innerHeight); });
+  // Fit the screen, whichever way it's held. Turn sideways is for phones that won't rotate: Rotation Lock and in-app browsers like Instagram.
+  const fit = () => {
+    const realLandscape = innerWidth > innerHeight, body = document.body;
+    if (realLandscape) body.classList.remove('sideways'); // The phone really turned, so the game doesn't need to
+    const side = isSideways(), w = side ? innerHeight : innerWidth, h = side ? innerWidth : innerHeight;
+    document.documentElement.style.setProperty('--logical-w', w + 'px'); document.documentElement.style.setProperty('--logical-h', h + 'px');
+    body.classList.toggle('compact', IS_TOUCH && w > h && h < 500);
+    $('btnSide').hidden = !IS_TOUCH || realLandscape; $('btnSide').textContent = side ? 'Turn upright' : 'Turn sideways';
+    camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h); if (composer) composer.setSize(w, h);
+  };
+  $('btnSide').onclick = () => { document.body.classList.toggle('sideways'); fit(); };
+  addEventListener('resize', fit); addEventListener('orientationchange', () => setTimeout(fit, 250)); // iPhones can report the new size late
+  fit();
 
   function frame() {
     requestAnimationFrame(frame);

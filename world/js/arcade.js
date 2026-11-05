@@ -132,13 +132,16 @@ export function runGame(name, canvas, sound, onScore, player = 'Guest') {
 
   // Input
   const rect = () => canvas.getBoundingClientRect();
+  const side = () => document.body.classList.contains('sideways'); // Game turned on a phone that won't rotate: screen down is game right
+  const across = (e, r) => (side() ? (e.clientY - r.top) / r.height : (e.clientX - r.left) / r.width) * W;
+  const ptX = (e) => side() ? e.clientY : e.clientX, ptY = (e) => side() ? -e.clientX : e.clientY;
   let sx = 0, sy = 0;
-  const down = (e) => { const r = rect(); input.x = (e.clientX - r.left) / r.width * W; sx = e.clientX; sy = e.clientY; input.tap = true; e.preventDefault(); };
+  const down = (e) => { const r = rect(); input.x = across(e, r); sx = ptX(e); sy = ptY(e); input.tap = true; e.preventDefault(); };
   const move = (e) => {
     if (e.buttons === 0 && e.pointerType !== 'mouse') return;
-    const r = rect(); input.x = (e.clientX - r.left) / r.width * W;
-    const dx = e.clientX - sx, dy = e.clientY - sy;
-    if (e.buttons && Math.hypot(dx, dy) > 24) { input.dir = Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) }; sx = e.clientX; sy = e.clientY; }
+    const r = rect(); input.x = across(e, r);
+    const dx = ptX(e) - sx, dy = ptY(e) - sy;
+    if (e.buttons && Math.hypot(dx, dy) > 24) { input.dir = Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) }; sx = ptX(e); sy = ptY(e); }
   };
   const key = (e) => {
     const on = e.type === 'keydown';
