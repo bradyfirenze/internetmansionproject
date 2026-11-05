@@ -110,12 +110,15 @@
     }).catch(function () {});
   }
 
-  var signed = localStorage.getItem(SIGNED);
-  if (signed) letIn(signed, '', true);
-  // Testing on this Mac skips the form. Add ?signup to the address to see it.
-  else if (LOCAL && !/[?&]signup\b/.test(location.search)) {
-    $('name').value = 'brady';
-    localStorage.setItem('imp_name', 'brady');
+  // Testing skips the form and sends nothing. ?test or ?test=name works anywhere; this Mac skips it anyway (?signup shows it).
+  var query = new URLSearchParams(location.search);
+  var skipAs = function (name) {
+    $('name').value = name;
+    localStorage.setItem('imp_name', name);
     $('title').classList.add('in');
-  }
+  };
+  var signed = localStorage.getItem(SIGNED);
+  if (query.has('test')) skipAs((query.get('test') || '').replace(/[^\w. -]/g, '').slice(0, 30) || 'Guest ' + Math.floor(100 + Math.random() * 900));
+  else if (signed) letIn(signed, '', true);
+  else if (LOCAL && !query.has('signup')) skipAs('brady');
 })();

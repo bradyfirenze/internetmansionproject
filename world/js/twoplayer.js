@@ -29,7 +29,7 @@ export function buildTwoPlayer(game) {
   // ---------- Screens ----------
   const show = (which) => { for (const id of ['tpIdle', 'tpHost', 'tpOn']) $(id).hidden = id !== which; };
   const say = (text) => { $('tpErr').textContent = text || ''; $('tpErr').hidden = !text; };
-  const inviteLink = () => `${location.origin}${location.pathname}?room=${code}`;
+  const inviteLink = () => `${location.origin}${location.pathname}?room=${code}${new URLSearchParams(location.search).has('test') ? '&test' : ''}`; // A tester's friend skips the signup too
   const render = () => {
     if (chan && chan.open && peerName) { show('tpOn'); $('tpWith').textContent = `Playing with ${peerName}`; return; }
     if (role === 'host') { show('tpHost'); $('tpCode').textContent = code; $('tpLink').textContent = inviteLink(); return; }
