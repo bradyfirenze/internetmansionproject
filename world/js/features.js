@@ -362,7 +362,7 @@ export function buildFeatures(game, data, assets) {
     g.setAttribute('aFace', new THREE.InstancedBufferAttribute(arr, 1));
     im.frustumCulled = false; return im;
   };
-  const RT = spots.rotunda, faceCols = 58, rowH = 1.4, FACE_R = RT.r - 0.8; // Just inside the corners of the blocky wall
+  const RT = spots.rotunda, faceCols = 54, rowH = 1.4, FACE_R = RT.r - 1.6; // In front of every corner of the blocky wall
   const rC = P3(RT.x, RT.y, 0);
   // Every follower gets their own open spot on the wall. The doorway stays clear, so those faces go up a row instead.
   const hofSlots = [], hofIndex = new Map();

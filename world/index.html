@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>The Internet Mansion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,6 +22,7 @@
   <div id="gold"><i></i><span id="goldN">0 / 0</span></div>
   <canvas id="mini" width="132" height="132"></canvas>
   <div id="prompt" hidden><kbd id="promptKey">E</kbd><span id="promptText"></span></div>
+  <button id="rosterBtn" hidden><kbd id="rosterKey">R</kbd><span id="rosterBtnText"></span></button>
   <div id="face" hidden></div>
   <div id="notice" hidden></div>
   <div id="toast" hidden><b>UNLOCKED</b><span id="toastText"></span></div>
@@ -89,7 +89,7 @@
     <div id="enterWrap" hidden>
       <input id="name" type="hidden">
       <button id="enter">WALK IN</button>
-      <div class="keys" id="keysDesk"><b>WASD</b> move <b>Mouse</b> look <b>Space</b> jump <b>Shift</b> sprint <b>F</b> fly <b>E</b> use <b>V</b> camera <b>M</b> map <b>Tab</b> list <b>N</b> day or night <b>Esc</b> free your mouse</div>
+      <div class="keys" id="keysDesk"><b>WASD</b> move <b>Mouse</b> look <b>Space</b> jump <b>Shift</b> sprint <b>F</b> fly <b>E</b> use <b>V</b> camera <b>M</b> map <b>Tab</b> list <b>N</b> day or night <b>R</b> who chose this room <b>Esc</b> free your mouse</div>
       <div class="keys" id="keysTouch" hidden>Left thumb moves. Right thumb looks. Tap USE when it shows up.</div>
     </div>
     <div id="noGL" hidden>This browser could not start 3D. Try Safari or Chrome directly instead of an in-app browser.</div>
@@ -130,6 +130,14 @@
 <div id="elevator" class="sheet" hidden><div class="panel"><div class="pHead"><h2 id="elevatorTitle">ELEVATOR</h2><button class="close" id="elevatorClose">Close</button></div><div id="elevatorBtns"></div></div></div>
 <!-- Movies -->
 <div id="movies" class="sheet" hidden><div class="panel wide"><div class="pHead"><h2>NOW SHOWING</h2><button class="close" id="moviesClose">Close</button></div><div id="moviesList"></div></div></div>
+<!-- Who chose this room. Draft: local copies show made-up test names only -->
+<div id="roster" class="sheet" hidden><div class="panel"><div class="pHead"><h2 id="rosterTitle"></h2><button class="close" data-close="roster">Close</button></div>
+  <div id="rosterTop"><span id="rosterCount"></span><select id="rosterCity" aria-label="Filter by city"></select></div>
+  <div id="rosterDraft">DRAFT: made-up test names. Only shows on your computer.</div>
+  <div id="rosterList"></div></div></div>
+<!-- FRIENDS link, only used once the link is set in js/settings.js -->
+<div id="friendsSheet" class="sheet" hidden><div class="panel"><div class="pHead"><h2>FRIENDS</h2><button class="close" data-close="friendsSheet">Close</button></div>
+  <div id="friendsBody"><a id="friendsGo" target="_blank" rel="noopener">Listen to FRIENDS</a><canvas id="friendsQR"></canvas><div class="hint">Or scan it with your phone.</div></div></div></div>
 <script src="js/signup.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>

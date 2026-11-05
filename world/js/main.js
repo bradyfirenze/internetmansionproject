@@ -12,6 +12,7 @@ import { Player } from './player.js';
 import { buildFeatures } from './features.js';
 import { runGame, GAMES } from './arcade.js';
 import { Sound } from './audio.js';
+import { buildRoster } from './roster.js';
 
 const $ = (id) => document.getElementById(id);
 const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window && innerWidth < 900;
@@ -273,7 +274,7 @@ async function boot() {
   let started = false, usePressed = false, useHeld = null, lastSpace = 0, lastW = 0, sprintLatch = false;
   const toggleFly = () => { if (player.locked) return; player.flying = !player.flying; player.vel.set(0, 0, 0); $('tFly').classList.toggle('on', player.flying); game.notice(player.flying ? 'Flying. Look where you want to go. Space up, C down. F to land.' : 'Landing.'); if (player.flying) game.achieve('fly'); };
   game.lock = (on) => { if (on) tryLock(); else releaseLock(); };
-  const anySheetOpen = () => !$('list').hidden || !$('map').hidden || !$('arcade').hidden || !$('paused').hidden || !$('movies').hidden || !$('elevator').hidden;
+  const anySheetOpen = () => !$('list').hidden || !$('map').hidden || !$('arcade').hidden || !$('paused').hidden || !$('movies').hidden || !$('elevator').hidden || !$('roster').hidden || !$('friendsSheet').hidden;
   const tryLock = () => { if (!started || IS_TOUCH || anySheetOpen() || params.has('nolock')) return; const p = canvas.requestPointerLock && canvas.requestPointerLock(); if (p && p.catch) p.catch(() => {}); };
   const releaseLock = () => { if (document.pointerLockElement) document.exitPointerLock(); };
   game.isLocked = () => document.pointerLockElement === canvas;
@@ -298,7 +299,8 @@ async function boot() {
     if (e.repeat) return;
     keys[e.code] = true;
     if (!started || !$('arcade').hidden) return;
-    if (e.code === 'Escape') { $('movies').hidden = true; $('elevator').hidden = true; }
+    if (e.code === 'Escape') { $('movies').hidden = true; $('elevator').hidden = true; $('roster').hidden = true; $('friendsSheet').hidden = true; }
+    if (e.code === 'KeyR' && !$('roster').hidden) { toggleSheet('roster', false); return; }
     if (anySheetOpen() && e.code !== 'KeyM' && e.code !== 'Tab') return;
     if (e.code === 'KeyE') pressUse();
     if (e.code === 'KeyF') toggleFly();
@@ -307,11 +309,14 @@ async function boot() {
     if (e.code === 'KeyV') toggleCam();
     if (e.code === 'KeyM') toggleSheet('map');
     if (e.code === 'KeyN') toggleDayNight();
+    if (e.code === 'KeyR') openRoster();
     if (e.code === 'Tab') toggleSheet('list');
   });
   addEventListener('keyup', (e) => { keys[e.code] = false; if (e.code === 'KeyE') releaseUse(); if (e.code === 'KeyW') sprintLatch = false; });
   addEventListener('blur', () => { for (const k in keys) keys[k] = false; releaseUse(); });
   document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => toggleSheet(b.dataset.close, false)));
+  const openRoster = () => { if (game.toggleRoster()) toggleSheet('roster', true); };
+  buildRoster(game); $('rosterBtn').onclick = openRoster;
   $('btnList').onclick = () => toggleSheet('list'); $('btnMap').onclick = () => toggleSheet('map');
   const toggleCam = () => { player.third = !player.third; avatar.visible = player.third;  };
   $('btnCam').onclick = toggleCam;
@@ -496,7 +501,7 @@ async function boot() {
       // Room name, the hook for room chats later
       const room = game.roomAt();
       if (room && room.id !== roomId) {
-        roomId = room.id; $('room').textContent = room.name; $('owner').textContent = room.owner ? '@' + room.owner : '';
+        roomId = room.id; game.setRosterRoom(room.id); $('room').textContent = room.name; $('owner').textContent = room.owner ? '@' + room.owner : '';
         if (room.id === 'hall') game.achieve('hall');
         if (room.id === 'chamber') game.achieve('chamber');
         if (room.id === 'field' && roomPrev === 'team-tunnel') game.achieve('stadium');

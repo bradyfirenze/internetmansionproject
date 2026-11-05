@@ -438,7 +438,7 @@ export function buildWorld(V) {
       const a = t0 + 2 + r * 3, rise = Math.floor((6 - r) / 3);
       for (const [v0, v1] of [[2, 8], [12, 18]]) { if (rise) wf(3, a, a + 2, v0, v1, 0, rise, B.charcoal); wf(3, a, a + 2, v0, v1, rise, rise + 1, B.seat); }
     }
-    const [mx, my] = w.P(w.len - 1.1, 9.9); spots.movie = { x: mx, y: my, h: 3, n: w.n };
+    const [mx, my] = w.P(w.len - 2.7, 9.9); spots.movie = { x: mx, y: my, h: 3, n: w.n };
   }
   // Wing 5: Chill Lounge, Art Gallery, Designer Closet
   {
@@ -496,7 +496,7 @@ export function buildWorld(V) {
   spots.partyButton = { x: -6, y: 127, h: 2 };
 
   // ---------- Hall of Fame rotunda ----------
-  const RC = [-63, 25], RR = 13, RH = 27;
+  const RC = [-63, 25], RR = 13, RH = 30;
   disc(RC[0], RC[1], RR + 1, -1, 0, B.marble);
   for (let h = 0; h < RH; h++) disc(RC[0], RC[1], RR + 1, h, h + 1, h === 0 ? B.stone : B.trim, RR);
   for (let h = 0; h < 7; h++) disc(RC[0], RC[1], RR + 1 - h * 2, RH + h, RH + h + 1, B.gold, RR - 1 - h * 2);
@@ -504,7 +504,7 @@ export function buildWorld(V) {
   disc(RC[0], RC[1], RR - 1.6 - 6, RH + 6, RH + 7, B.glass);
   fill(-50, -46, 24, 26, 0, 4, B.air); fill(-50, -47, 23, 24, 0, 5, B.trim); fill(-50, -47, 26, 27, 0, 5, B.trim); fill(-50, -47, 23, 27, 4, 5, B.trim); fill(-50, -46, 24, 26, -1, 0, B.redCarpet);
   // Free-standing spiral stair in the middle of the room, so nothing ever sits in front of the wall of faces
-  const SPIN = 6.283 * 2.45, RISE = 1.55;
+  const SPIN = 6.283 * 2.9, RISE = 1.55;
   disc(RC[0], RC[1], 2, 1, Math.floor(SPIN * RISE) + 4, B.gold);
   for (let a = 0; a < SPIN; a += 0.01) {
     const hh = Math.floor(a * RISE);

@@ -151,3 +151,22 @@ button.mv:hover { outline:2px solid var(--gold); }
 #pauseBtns #pMap { grid-column:1 / -1; }
 #paused .hint { margin-top:12px; font:500 13px/1.4 var(--body); color:var(--muted); }
 #btnTime { grid-column:1 / -1; }
+
+/* Room roster (draft) */
+#rosterBtn { position:absolute; left:calc(14px + env(safe-area-inset-left)); top:calc(84px + env(safe-area-inset-top)); display:flex; align-items:center; gap:7px; background:rgba(11,13,18,.82); padding:5px 9px 5px 5px; font:600 13px/1 var(--body); pointer-events:auto; }
+#rosterBtn kbd { font-size:13px; padding:3px 6px; }
+#rosterBtn:hover { background:var(--blue); }
+#rosterTop { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 14px 6px; font:600 14px/1.2 var(--body); }
+#rosterCity { background:var(--panel); color:#fff; border:1px solid var(--line); padding:7px 8px; font:500 13px/1 var(--body); max-width:50%; }
+#rosterDraft { margin:0 14px 8px; padding:6px 8px; background:var(--gold); color:#1c1200; font:600 12px/1.2 var(--body); }
+#rosterList { overflow:auto; padding:0 14px 14px; touch-action:pan-y; }
+.rosterRow { display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--line); font:500 14px/1.2 var(--body); }
+.rosterRow b { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rosterRow span { color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rosterRow span.none { font-style:italic; opacity:.7; }
+
+/* FRIENDS link */
+#friendsBody { display:flex; flex-direction:column; align-items:center; gap:12px; padding:16px 14px 6px; }
+#friendsGo { display:block; width:100%; text-align:center; background:#ff3f9a; color:#fff; font:400 22px/1 var(--display); letter-spacing:.03em; padding:15px; text-decoration:none; }
+#friendsGo:hover { background:var(--blue); }
+#friendsQR { width:200px; height:200px; image-rendering:pixelated; }

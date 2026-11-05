@@ -1,5 +1,7 @@
 // Signage, the glass elevator, the festival stage and the Movie Theater library.
 import * as THREE from 'three';
+import { FRIENDS_LINK } from './settings.js';
+import { makeQR, drawQR } from './qr.js';
 
 export function buildExtras(game, data, H) {
   const { scene, player, sound } = game, { spots, W, G } = data, { P3, addE, tick, textCanvas, DISPLAY, label, button, musicAt } = H;
@@ -21,6 +23,22 @@ export function buildExtras(game, data, H) {
   archSign(5, 0.95, 'CHILL LOUNGE', true); archSign(5, 16.67, 'ART GALLERY'); archSign(5, 33.33, 'DESIGNER CLOSET');
   archSign(7, 0.95, 'KITCHEN', true); archSign(7, 15, 'OPEN ROOM'); archSign(7, 30, 'OPEN ROOM');
   label(P3(-20, 74.1, 16.2), 0, 'ROOMS 1 TO 10', 8, 0.9);
+  // Coming soon signs. Nothing here promises a date or the party.
+  const soonWidth = (text) => text.length * 0.42 + 1.2;
+  const soonOnWall = (i, u, h, text) => { const w = W[i], [x, y] = w.P(u, 1.6); label(P3(x, y, h), Math.atan2(w.t[0], -w.t[1]), text, soonWidth(text), 1.2, true); };
+  soonOnWall(3, 8, 7, 'MORE GAMES COMING SOON');
+  soonOnWall(3, 22.5, 7, 'COLLABORATION COMING SOON');
+  soonOnWall(3, 45, 7, 'MORE MOVIES COMING SOON');
+  soonOnWall(5, 8, 7, 'ROOM CHAT COMING SOON');
+  soonOnWall(5, 25, 7, 'SUBMIT YOUR ART COMING SOON');
+  { const text = 'SUBMIT YOUR DESIGNS COMING SOON', w = W[5], [x, y] = w.P(41.7, w.width - 1.6); label(P3(x, y, 7), Math.atan2(-w.t[0], w.t[1]), text, soonWidth(text), 1.2, true); } // The other wall: this one's got the clothes racks
+  soonOnWall(1, 31, 8, 'CUSTOM CARS COMING SOON');
+  label(P3(-6, 125, 9), 0, 'MORE COMING SOON', soonWidth('MORE COMING SOON'), 1.2, true); // Party Room, over the DJ booth
+  label(P3(spots.stadium.gate.x + 0.2, spots.stadium.gate.y, 6.5), Math.PI / 2, 'GAME DAY COMING SOON', soonWidth('GAME DAY COMING SOON'), 1.2, true);
+  { // Backyard: its own post on the pool deck, facing the way people walk out of the house
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5, 0.4), new THREE.MeshBasicMaterial({ color: 0xc9a227 })); post.position.copy(P3(44, 20, 2.5)); scene.add(post);
+    label(P3(44, 20, 5.2), -Math.PI / 2, 'POOL GAMES COMING SOON', soonWidth('POOL GAMES COMING SOON'), 1.2, true);
+  }
 
   // ---------- Elevators ----------
   const $ = (id) => document.getElementById(id);
@@ -97,17 +115,27 @@ export function buildExtras(game, data, H) {
       const src = sound.ctx.createMediaElementSource(song); analyser = sound.ctx.createAnalyser(); analyser.fftSize = 256; freq = new Uint8Array(analyser.frequencyBinCount);
       songGain = sound.ctx.createGain(); songGain.gain.value = 0; src.connect(analyser); analyser.connect(songGain); songGain.connect(sound.master);
     };
+    // The song's page, once FRIENDS_LINK is set. Local copies can try one with ?friendslink=
+    const testLink = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).get('friendslink');
+    const link = [testLink, FRIENDS_LINK].find((u) => u && /^https:\/\//.test(u)) || '', qr = link ? makeQR(link) : null;
+    const tx = qr ? 165 : 256; // With a code on the right, the words move over and shrink to fit
     let on = false, lastDraw = 0;
     const draw = (t) => {
       const flash = on ? beat : 0;
       c.fillStyle = on ? `hsl(${(t * 90) % 360},80%,${6 + flash * 45}%)` : '#0b0d12'; c.fillRect(0, 0, 512, 256);
       if (on) { for (let i = 0; i < 16; i++) { const v = freq ? freq[2 + i * 3] / 255 : Math.abs(Math.sin(t * 3 + i * 0.7)), h = 20 + v * 225; c.fillStyle = `hsl(${(i * 24 + t * 120) % 360},95%,62%)`; c.fillRect(8 + i * 31, 256 - h, 24, h); } }
       c.textAlign = 'center';
-      if (on) { c.fillStyle = '#fff'; c.font = `${92 + flash * 16}px ${DISPLAY}`; c.fillText('FRIENDS', 256, 110); c.font = `30px ${DISPLAY}`; c.fillStyle = '#f5c518'; c.fillText('LIVE AT THE INTERNET MANSION', 256, 150); }
-      else { c.fillStyle = '#f5c518'; c.font = `58px ${DISPLAY}`; c.fillText('INTERNET MANSION', 256, 92); c.font = `34px ${DISPLAY}`; c.fillStyle = '#fff'; c.fillText('MAIN STAGE', 256, 140); }
+      if (on) { c.fillStyle = '#fff'; c.font = `${(qr ? 66 : 92) + flash * 16}px ${DISPLAY}`; c.fillText('FRIENDS', tx, 110); c.font = `${qr ? 19 : 30}px ${DISPLAY}`; c.fillStyle = '#f5c518'; c.fillText('LIVE AT THE INTERNET MANSION', tx, 150); }
+      else { c.fillStyle = '#f5c518'; c.font = `${qr ? 37 : 58}px ${DISPLAY}`; c.fillText('INTERNET MANSION', tx, 92); c.font = `${qr ? 26 : 34}px ${DISPLAY}`; c.fillStyle = '#fff'; c.fillText('MAIN STAGE', tx, 140); }
+      if (qr) { c.fillStyle = '#000'; c.fillRect(316, 8, 188, 240); const full = drawQR(c, qr, 322, 14, 176); c.fillStyle = '#fff'; c.font = `22px ${DISPLAY}`; c.fillText('SCAN TO LISTEN', 410, 14 + full + 28); }
       tex.needsUpdate = true;
     };
     draw(0);
+    if (link) {
+      $('friendsGo').href = link;
+      const big = $('friendsQR'); big.width = big.height = 400; if (qr) drawQR(big.getContext('2d'), qr, 0, 0, 400); else big.hidden = true;
+      button(P3(S.x + 5, S.y - 1, S.h), 0x38b6ff, () => 'Listen to FRIENDS', () => { sound.fx('click'); $('friendsSheet').hidden = false; game.lock(false); });
+    }
     const stopShow = () => {
       on = false; beams.visible = false; rig.visible = false; confetti.visible = false; song.pause(); beat = 0; draw(0);
       if (game.musicSource?.style === 'party') { sound.stopMusic(); game.musicSource = null; }
@@ -162,8 +190,8 @@ export function buildExtras(game, data, H) {
       const st = $('movieStop'); if (st) st.onclick = () => { stop(); };
     }
     $('moviesClose').onclick = () => { $('movies').hidden = true; game.lock(true); };
-    const seat = w.P(w.len * 0.25 + 7, 9.9);
-    addE({ pos: P3(seat[0], seat[1], 1.5), r: 8, any: true, prompt: () => 'Pick a movie', use: () => { render(); $('movies').hidden = false; game.lock(false); } });
+    const seat = w.P(w.len * 0.75, 9.9);
+    addE({ pos: P3(seat[0], seat[1], 1.5), r: 15, any: true, prompt: () => 'Pick a movie', use: () => { render(); $('movies').hidden = false; game.lock(false); } });
     tick(() => { if (playing) { const d = player.pos.distanceTo(c); video.volume = Math.max(0, 0.85 - d / 34); if (d > 36) stop(); } });
   }
 }
