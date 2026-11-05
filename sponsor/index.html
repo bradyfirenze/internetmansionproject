@@ -31,13 +31,15 @@
   h1, h2, h3 { font-weight: 400; margin: 0; text-wrap: balance; }
 
   .hero { position: relative; }
-  .hero img { aspect-ratio: 16 / 9; object-fit: cover; }
+  .hero img { aspect-ratio: 3 / 1; object-fit: cover; object-position: center 25%; }
   .hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(to bottom, rgba(11,13,18,0), var(--ink)); }
   .intro { position: relative; z-index: 1; margin-top: -28px; padding: 0 16px; }
   h1 { font: 400 clamp(46px, 13vw, 66px)/1.04 var(--display); color: var(--gold); letter-spacing: .01em; }
   .intro p { margin: 12px 0 0; color: var(--text); font-size: 17px; }
 
-  section { padding: 36px 16px 0; }
+  .intro a { color: var(--gold); font-weight: 600; }
+  section { padding: 28px 16px 0; }
+  section.first { padding-top: 0; }
   h2 { font: 400 34px/1.08 var(--display); letter-spacing: .01em; }
   .sub { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
 
@@ -69,21 +71,22 @@
 <main class="page">
   <div class="hero"><img src="img/mansion.jpg" width="1280" height="720" alt="The mansion from the front lawn in the game, under the giant Internet Mansion sign"></div>
   <div class="intro">
-    <h1>Get your own room in the mansion</h1>
-    <p>We're building the biggest mansion on the internet, one top comment at a time. Now you can have your own room in it and decorate it however you want. Brands can get in too, with a whole branded room and big spots around the property.</p>
+    <h1>Get your room in the mansion</h1>
+    <p>Your own room, decorated however you want, or your name in the Hall of Fame. Pay once. <a href="#brands">Brands, go here.</a></p>
   </div>
 
-  <section>
-    <h2>Your own place</h2>
-    <p class="sub">Pay once. It's yours forever.</p>
+  <section class="first" aria-label="Your room and your name">
     <article class="tier">
       <div class="tier-head"><h3>Your own room</h3><div class="price">$5<small>once</small></div></div>
       <ul>
-        <li><b>Decorate it however you want.</b> Your pictures on the walls, your video on the TV, your stuff on display.</li>
+        <li><b>Decorate it however you want.</b> Your pictures, your video, your stuff. We review it first, and the rules below apply.</li>
         <li><b>Your name over the door.</b> It's your room, forever.</li>
         <li><b>Only 2 open right now.</b> After that, we build on more.</li>
       </ul>
-      <p>We review every room before it goes up, and the rules below apply.</p>
+    </article>
+    <article class="tier">
+      <div class="tier-head"><h3>Late Hall of Fame entry</h3><div class="price">$1<small>once</small></div></div>
+      <p>Missed the first 1,000 followers? Get into the Hall of Fame anyway. The first 1,000 stay free.</p>
     </article>
     <article class="tier">
       <div class="tier-head"><h3>Your own guest house</h3><div class="price">$10<small>once</small></div></div>
@@ -102,10 +105,6 @@
       <img src="img/supporter.jpg" width="720" height="150" alt="The top of the Supporter Wall in the foyer" loading="lazy">
       <div class="tier-head"><h3>The Supporter Wall</h3><div class="price">$1<small>once</small></div></div>
       <p>Your handle on the wall in the Grand Foyer, next to the front door. This is the way in for anybody.</p>
-    </article>
-    <article class="tier">
-      <div class="tier-head"><h3>Late Hall of Fame entry</h3><div class="price">$1<small>once</small></div></div>
-      <p>Missed the first 1,000 followers? Get into the Hall of Fame anyway. The first 1,000 stay free.</p>
     </article>
     <article class="tier">
       <div class="tier-head"><h3>The tippy top of a pyramid</h3><div class="price">$1<small>once</small></div></div>
@@ -135,7 +134,7 @@
     </article>
   </section>
 
-  <section>
+  <section id="brands">
     <h2>For brands</h2>
     <p class="sub">The big places are priced by the day. Renew if you want to stay.</p>
     <article class="tier">
