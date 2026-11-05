@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Become an IMP VIP | The Internet Mansion Project</title>
-<meta name="description" content="The first 10,000 followers go on the giant disco ball and the invite list for a real mansion party in Hollywood.">
-<meta property="og:title" content="Become an IMP VIP">
-<meta property="og:description" content="The first 10,000 followers go on the giant disco ball and the invite list for a real mansion party in Hollywood.">
-<meta property="og:image" content="https://internetmansionproject.com/assets/hero.jpg">
+<title>The Internet Mansion Project</title>
+<meta name="description" content="We're building the biggest mansion on the internet, one top comment at a time.">
+<meta property="og:title" content="The Internet Mansion Project">
+<meta property="og:description" content="We're building the biggest mansion on the internet, one top comment at a time.">
+<meta property="og:image" content="https://internetmansionproject.com/assets/mansion.jpg">
 <meta property="og:url" content="https://internetmansionproject.com/">
 <meta name="theme-color" content="#0b0d12">
 <link rel="icon" href="assets/logo.jpg">
@@ -22,416 +22,79 @@
     --muted: #a3a9b6;
     --text: #f4f5f7;
     --gold: #f5c518;
-    --blue: #1f6bff;
-    --red: #ff5a72;
     --display: "Anton", Impact, "Arial Narrow", sans-serif;
     --body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: #05060a; color: var(--text); font: 400 16px/1.45 var(--body); }
-  .page { max-width: 480px; margin: 0 auto; background: var(--ink); min-height: 100vh; overflow: hidden; }
-  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--ink); color: var(--text); font: 400 16px/1.45 var(--body); }
+  a { color: inherit; }
+  img { display: block; width: 100%; }
 
-  /* Hero: same big word + white label treatment as the videos */
-  .hero { position: relative; height: 620px; background: #05060a url("assets/hero.jpg") center top / cover no-repeat; }
-  .hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 190px; background: linear-gradient(to bottom, rgba(11,13,18,0), var(--ink)); }
-  .hud { position: absolute; top: 14px; left: 14px; display: flex; align-items: stretch; font: 400 15px/1 var(--display); letter-spacing: .03em; z-index: 1; }
-  .hud span { display: flex; align-items: center; padding: 8px 10px; background: rgba(11,13,18,.82); }
-  .hud .home { background: var(--blue); padding: 6px 8px; }
-  .hud .home svg { width: 17px; height: 17px; fill: #fff; }
-  .hud .alt { background: #262a33; }
-  .hud .gold { color: var(--gold); }
-  .headline { position: absolute; top: 58px; left: 16px; right: 16px; z-index: 1; }
-  h1 { margin: 0; font: 400 clamp(68px, 22vw, 92px)/1.02 var(--display); color: var(--gold); letter-spacing: .01em; text-shadow: 0 3px 18px rgba(0,0,0,.65); }
-  .tag { display: inline-block; margin-top: 8px; padding: 4px 9px; background: #fff; color: #0b0d12; font-size: 12.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .hero { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 500px; padding: 24px 16px 28px; background: #05060a url("assets/mansion.jpg") center 45% / cover no-repeat; }
+  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(11,13,18,.05) 25%, rgba(11,13,18,.72) 62%, var(--ink) 100%); }
+  .hero > * { position: relative; z-index: 1; }
+  h1 { margin: 0; font: 400 clamp(62px, 19vw, 118px)/1.02 var(--display); color: var(--gold); letter-spacing: .01em; text-shadow: 0 3px 18px rgba(0,0,0,.65); }
+  .lead { margin: 12px 0 0; font-size: 18px; font-weight: 600; text-shadow: 0 1px 10px rgba(0,0,0,.8); }
 
-  .perks { list-style: none; margin: -56px 0 0; padding: 0 16px; position: relative; z-index: 2; display: grid; gap: 8px; }
-  .perks li { display: grid; grid-template-columns: 46px 1fr; gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); padding: 12px; }
-  .perks b { display: block; font-size: 15px; font-weight: 700; }
-  .perks small { display: block; color: var(--muted); font-size: 13.5px; line-height: 1.35; margin-top: 1px; }
-  .perks i { font: 400 25px/1 var(--display); color: var(--gold); text-align: center; font-style: normal; }
+  .doors { display: grid; gap: 12px; padding: 4px 16px 0; }
+  .door { display: flex; flex-direction: column; overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; text-decoration: none; }
+  a.door:hover { border-color: var(--gold); }
+  a.door:focus-visible, .cta:focus-visible, footer a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+  .door img { height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+  .door img.vip-pic { object-position: center 55%; }
+  .door-body { display: flex; flex: 1; flex-direction: column; padding: 16px; }
+  h2 { margin: 0; font: 400 34px/1.08 var(--display); letter-spacing: .01em; }
+  .door p { margin: 6px 0 16px; color: var(--muted); font-size: 15.5px; }
+  .cta { display: flex; align-items: center; justify-content: center; min-height: 52px; margin-top: auto; padding: 10px 14px; border-radius: 8px; background: var(--gold); color: #1c1200; font: 800 16px/1.2 var(--body); text-align: center; text-decoration: none; }
 
-  /* Form */
-  form { padding: 28px 16px 36px; display: grid; gap: 26px; }
-  .section-title { margin: 0; font: 400 34px/1.05 var(--display); letter-spacing: .01em; }
-  .field { display: grid; gap: 7px; border: 0; margin: 0; padding: 0; min-width: 0; }
-  label.name, legend.name { font-size: 14px; font-weight: 700; padding: 0; }
-  legend.name { margin-bottom: 7px; }
-  .opt { color: var(--muted); font-weight: 500; }
-  .hint { color: var(--muted); font-size: 13px; margin: -2px 0 0; }
-  input[type=text], input[type=email], input[type=tel] { width: 100%; height: 50px; padding: 0 14px; font: 500 16px var(--body); color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 0; outline: none; appearance: none; }
-  input::placeholder { color: #6e7482; font-weight: 400; }
-  input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus { border-color: var(--gold); }
-  .at { position: relative; }
-  .at::before { content: "@"; position: absolute; left: 14px; top: 13px; color: var(--muted); font-weight: 600; }
-  .at input { padding-left: 34px !important; }
-  .err { display: none; color: var(--red); font-size: 13.5px; font-weight: 600; }
-  .invalid > .err, .invalid .err { display: block; }
-  .invalid input[type=text], .invalid input[type=email], .invalid input[type=tel] { border-color: var(--red); }
+  footer { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 28px 16px 40px; color: var(--muted); font-size: 14px; }
 
-  /* Room tiles */
-  .rooms { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .room { position: relative; display: block; cursor: pointer; }
-  .room input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
-  .room div { min-height: 88px; height: 100%; padding: 12px; background: var(--panel); border: 1px solid var(--line); transition: background .12s, color .12s, border-color .12s; }
-  .room b { display: block; font: 400 21px/1.08 var(--display); letter-spacing: .015em; }
-  .room small { display: block; margin-top: 5px; color: var(--muted); font-size: 12.5px; line-height: 1.3; }
-  .room input:checked + div { background: var(--gold); border-color: var(--gold); color: #1c1200; }
-  .room input:checked + div small { color: #4d3c00; }
-  .room input:focus-visible + div { outline: 2px solid #fff; outline-offset: 2px; }
-
-  /* Age pills */
-  .ages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .ages.two { grid-template-columns: repeat(2, 1fr); }
-  .age { position: relative; }
-  .age input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
-  .age span { display: flex; align-items: center; justify-content: center; height: 48px; background: var(--panel); border: 1px solid var(--line); font-size: 14px; font-weight: 700; text-align: center; }
-  .age input:checked + span { background: var(--blue); border-color: var(--blue); color: #fff; }
-  .age input:focus-visible + span { outline: 2px solid #fff; outline-offset: 2px; }
-  .notice { padding: 11px 12px; background: var(--panel); border-left: 3px solid var(--gold); font-size: 13.5px; line-height: 1.4; }
-  .notice.stop { border-left-color: var(--red); }
-
-  /* Picture */
-  .pic { display: flex; align-items: center; gap: 14px; }
-  .avatar { flex: 0 0 72px; width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: var(--panel); border: 2px solid var(--line); }
-  .pic-btn { position: relative; display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border: 1px solid #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
-  .pic-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
-  .pic-btn:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
-
-  /* Checks */
-  .check { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; font-size: 14px; line-height: 1.4; cursor: pointer; }
-  .check input { width: 22px; height: 22px; margin: 0; accent-color: var(--gold); }
-  .check a { color: var(--gold); }
-
-  .cta { width: 100%; height: 62px; border: 0; background: var(--gold); color: #1c1200; font: 400 27px/1 var(--display); letter-spacing: .03em; cursor: pointer; }
-  .cta:active { transform: translateY(1px); }
-  .cta:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-  .cta[disabled] { background: #3a3f4b; color: #8a8f9b; cursor: not-allowed; }
-  .form-err { margin: -12px 0 0; color: var(--red); font-size: 14px; font-weight: 600; text-align: center; }
-  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  .legal { margin: -14px 0 0; color: var(--muted); font-size: 12.5px; text-align: center; }
-  .legal a { color: inherit; }
-
-  /* Success */
-  .done { padding: 28px 16px 44px; text-align: center; }
-  .done h2 { margin: 0; font: 400 58px/1 var(--display); color: var(--gold); }
-  .done > p { margin: 8px 0 20px; color: var(--muted); }
-  .card { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #05060a url("assets/hero.jpg") center 30% / cover; border: 2px solid var(--gold); text-align: left; }
-  .card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(5,6,10,.62) 0, rgba(5,6,10,.08) 34%, rgba(5,6,10,.9) 72%); }
-  .card > * { position: absolute; z-index: 1; }
-  .card .top { top: 14px; left: 14px; right: 14px; font: 400 18px/1.15 var(--display); letter-spacing: .03em; }
-  .card .vip { display: block; font-size: 58px; line-height: 1.02; color: var(--gold); }
-  .card .who { left: 14px; right: 14px; bottom: 14px; display: grid; grid-template-columns: 70px 1fr; gap: 12px; align-items: center; }
-  .card .who img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
-  .card .handle { display: block; font: 400 25px/1.1 var(--display); overflow-wrap: anywhere; }
-  .card .lives { display: block; margin-top: 3px; font-size: 13px; font-weight: 600; }
-  .card .invite { display: block; margin-top: 2px; font-size: 12.5px; color: var(--gold); font-weight: 700; }
-  .next { margin: 18px 0 0; padding: 13px; background: var(--panel); border: 1px solid var(--line); font-size: 14.5px; font-weight: 600; }
-  .rules { border-top: 1px solid var(--line); padding: 0 16px; color: var(--muted); font-size: 13.5px; }
-  .rules summary { padding: 16px 0; font-weight: 700; cursor: pointer; }
-  .rules ul { margin: 0; padding: 0 0 22px 18px; display: grid; gap: 8px; }
+  @media (min-width: 860px) {
+    .hero { min-height: 480px; padding: 40px max(24px, calc((100vw - 1160px) / 2)) 36px; }
+    .doors { grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 1208px; margin: 0 auto; padding: 4px 24px 0; }
+    footer { max-width: 1208px; margin: 0 auto; padding: 32px 24px 44px; }
+  }
 </style>
 </head>
 <body>
-<div class="page">
+<header class="hero">
+  <h1>THE INTERNET MANSION</h1>
+  <p class="lead">We're building the biggest mansion on the internet, one top comment at a time.</p>
+</header>
 
-  <div id="signup">
-    <header class="hero">
-      <div class="hud" aria-hidden="true">
-        <span class="home"><svg viewBox="0 0 24 24"><path d="M12 3 2 12h3v9h5v-6h4v6h5v-9h3z"/></svg></span>
-        <span>IMP</span><span class="alt">VIP LIST</span><span class="gold">FIRST 10,000</span>
-      </div>
-      <div class="headline">
-        <h1>IMP VIP</h1>
-        <span class="tag">The biggest mansion on the internet</span>
-      </div>
-    </header>
-
-    <ul class="perks">
-      <li><i>01</i><div><b>Your name on the disco ball</b><small>Every follower up to 10,000 goes on it.</small></div></li>
-      <li><i>02</i><div><b>The party invite list</b><small>A real mansion party in Hollywood, California, when we hit 10,000.</small></div></li>
-      <li><i>03</i><div><b>A room to call home</b><small>Pick where you live in the mansion.</small></div></li>
-    </ul>
-
-    <form id="form" novalidate>
-      <h2 class="section-title">Claim your spot</h2>
-      <div class="trap" aria-hidden="true"><label>Website <input id="website" type="text" tabindex="-1" autocomplete="off"></label></div>
-
-      <div class="field" id="f-handle">
-        <label class="name" for="handle">Instagram handle</label>
-        <div class="at"><input id="handle" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="yourhandle" maxlength="60"></div>
-        <p class="hint">This is the name that goes on the disco ball.</p>
-        <span class="err">Enter a real Instagram handle.</span>
-      </div>
-
-      <fieldset class="field" id="f-contact">
-        <legend class="name">How should we reach you?</legend>
-        <div class="ages two">
-          <label class="age"><input type="radio" name="contact" value="text" checked><span>Text me</span></label>
-          <label class="age"><input type="radio" name="contact" value="email"><span>Email me</span></label>
-        </div>
-        <div id="phone-wrap" style="display:grid;gap:7px;margin-top:8px">
-          <input id="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Phone number" aria-label="Phone number" maxlength="24">
-          <p class="hint" style="margin:0">Outside the US? Add your country code. Message and data rates may apply. Reply STOP anytime.</p>
-          <span class="err">Enter a valid phone number.</span>
-        </div>
-        <div id="email-wrap" style="display:grid;gap:7px;margin-top:8px" hidden>
-          <input id="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" placeholder="you@email.com" aria-label="Email">
-          <span class="err">Enter a valid email.</span>
-        </div>
-      </fieldset>
-
-      <div class="field" id="f-city">
-        <label class="name" for="city">City</label>
-        <input id="city" type="text" autocomplete="address-level2" placeholder="Where you live" maxlength="80">
-        <span class="err">Enter your city.</span>
-      </div>
-
-      <fieldset class="field" id="f-room">
-        <legend class="name">Which room do you want to live in?</legend>
-        <div class="rooms" id="rooms"></div>
-        <span class="err">Pick a room.</span>
-      </fieldset>
-
-      <div class="field" id="f-pic">
-        <span class="name" style="font-size:14px;font-weight:700">Your picture <span class="opt">(optional)</span></span>
-        <div class="pic">
-          <img class="avatar" id="avatar" src="assets/logo.jpg" alt="">
-          <label class="pic-btn"><span id="pic-label">Add a picture</span><input id="picture" type="file" accept="image/*" aria-label="Add a picture"></label>
-        </div>
-        <p class="hint">We review every picture before it goes on the ball.</p>
-        <span class="err">That file isn't an image. Try another one.</span>
-      </div>
-
-      <fieldset class="field" id="f-age">
-        <legend class="name">How old are you?</legend>
-        <div class="ages">
-          <label class="age"><input type="radio" name="age" value="under13"><span>Under 13</span></label>
-          <label class="age"><input type="radio" name="age" value="13-17"><span>13 to 17</span></label>
-          <label class="age"><input type="radio" name="age" value="18+"><span>18+</span></label>
-        </div>
-        <span class="err">Pick your age group.</span>
-        <div class="notice" id="age-note" hidden></div>
-      </fieldset>
-
-      <div class="field" id="f-agree">
-        <label class="check"><input id="agree" type="checkbox"><span>I follow <a href="https://www.instagram.com/internetmansionproject/" target="_blank" rel="noopener">@internetmansionproject</a>, I agree to the <a href="#rules" id="rules-link">rules</a>, and you can <span id="consent-verb">text</span> me about the mansion and the party.</span></label>
-        <span class="err">Check this box to claim your spot.</span>
-      </div>
-
-      <label class="check"><input id="roster" type="checkbox"><span>Show me on my room's roster so other residents can find my Instagram. <span class="opt">Optional.</span></span></label>
-
-      <button class="cta" id="submit" type="submit">Claim my spot</button>
-      <p class="form-err" id="form-err" role="alert" hidden></p>
-      <p class="legal"><a href="privacy.html">Privacy policy</a>. No spam.</p>
-    </form>
-  </div>
-
-  <section class="done" id="done" hidden>
-    <h2>You're in</h2>
-    <p>Welcome to the mansion.</p>
-    <div class="card">
-      <div class="top">THE INTERNET MANSION PROJECT<span class="vip">IMP VIP</span></div>
-      <div class="who">
-        <img id="card-pic" src="assets/logo.jpg" alt="">
-        <div>
-          <span class="handle" id="card-handle"></span>
-          <span class="lives" id="card-room"></span>
-          <span class="invite" id="card-invite"></span>
-        </div>
-      </div>
+<main class="doors">
+  <a class="door" href="vip/">
+    <img class="vip-pic" src="assets/hero.jpg" width="960" height="540" alt="The giant disco ball covered in follower pictures">
+    <div class="door-body">
+      <h2>Become a VIP</h2>
+      <p>Your name on the disco ball, the party invite list, and a room to call home.</p>
+      <span class="cta">Claim my spot</span>
     </div>
-    <div class="next">Screenshot your card and post it to your story.</div>
-  </section>
+  </a>
 
-  <details class="rules" id="rules">
-    <summary>Rules</summary>
-    <ul>
-      <li>The party only happens if IMP reaches 10,000 followers. Date and venue come later.</li>
-      <li>It's an invite list with limited capacity. Joining the list doesn't guarantee entry.</li>
-      <li>The party is 18+ with ID checked at the door. Any alcohol is 21+ only.</li>
-      <li>You must be at least 13 to sign up.</li>
-      <li>Disco ball spots are for the first 10,000 followers. We review every picture and can leave out any name or picture.</li>
-      <li>Picking a room is your place in the community. It doesn't mean a room gets built for you.</li>
-    </ul>
-  </details>
-</div>
+  <a class="door" href="https://internetmansionproject.com/world/">
+    <img src="assets/world.jpg" width="1080" height="860" alt="A pyramid and a train on the mansion property" loading="lazy">
+    <div class="door-body">
+      <h2>Play the mansion</h2>
+      <p>The whole property is playable in 3D. Sign up and walk in.</p>
+      <span class="cta">Walk in</span>
+    </div>
+  </a>
 
-<script>
-  var ROOMS = [
-    ["Sports Stadium", "Football, hoops, golf, all of it"],
-    ["Gaming Room", "One more game"],
-    ["Backyard Party", "Pool, grill, speakers"],
-    ["Party Room", "Under the disco ball"],
-    ["Chill Lounge", "Big couch, zero plans"],
-    ["Music Studio", "Press record"],
-    ["Art Gallery", "Quiet geniuses"],
-    ["Designer Closet", "Never wear it twice"],
-    ["Hot Rod Garage", "Engines on"],
-    ["Movie Theater", "Best seat, every night"]
-  ];
-  var LOGO = "assets/logo.jpg";
-  // The Apps Script web app URL. Empty means preview mode: nothing is sent anywhere.
-  var ENDPOINT = "https://script.google.com/macros/s/AKfycbzrXaiwLzOEsHZmQ6K9aYMmTniFYCrApmrzUoanpTTBbgFFlmPjzmujxv4gRQELFUPA/exec";
-  var $ = function (id) { return document.getElementById(id); };
+  <a class="door" href="sponsor/">
+    <img src="assets/sign.jpg" width="960" height="640" alt="The giant Internet Mansion sign with an empty presented-by spot" loading="lazy">
+    <div class="door-body">
+      <h2>Sponsor the mansion</h2>
+      <p>Put your name, your brand, or your song inside the mansion.</p>
+      <span class="cta">See the spots</span>
+    </div>
+  </a>
+</main>
 
-  // Shrinks a picture to a small JPEG in the browser so uploads stay fast on phones.
-  function shrinkPicture(file) {
-    return new Promise(function (resolve, reject) {
-      var url = URL.createObjectURL(file);
-      var img = new Image();
-      img.onload = function () {
-        var scale = Math.min(1, 512 / Math.max(img.naturalWidth, img.naturalHeight));
-        var canvas = document.createElement("canvas");
-        canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-        canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(url);
-        resolve(canvas.toDataURL("image/jpeg", 0.82));
-      };
-      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("bad image")); };
-      img.src = url;
-    });
-  }
-
-  $("rooms").innerHTML = ROOMS.map(function (r) {
-    return '<label class="room"><input type="radio" name="room" value="' + r[0] + '"><div><b>' + r[0] + '</b><small>' + r[1] + '</small></div></label>';
-  }).join("");
-
-  function cleanHandle(v) {
-    return v.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/[\/?].*$/, "").toLowerCase();
-  }
-  function picked(name) {
-    var el = document.querySelector('input[name="' + name + '"]:checked');
-    return el ? el.value : "";
-  }
-  function setInvalid(id, bad) {
-    $(id).classList.toggle("invalid", bad);
-    return bad;
-  }
-
-  // Text or email: only the chosen one is shown, checked and consented to.
-  function syncContact() {
-    var useText = picked("contact") === "text";
-    $("phone-wrap").hidden = !useText;
-    $("email-wrap").hidden = useText;
-    $("consent-verb").textContent = useText ? "text" : "email";
-    setInvalid("f-contact", false);
-  }
-  document.querySelectorAll('input[name="contact"]').forEach(function (r) {
-    r.addEventListener("change", syncContact);
-  });
-  syncContact();
-
-  $("rules-link").addEventListener("click", function (e) {
-    e.preventDefault();
-    $("rules").open = true;
-    $("rules").scrollIntoView({ behavior: "smooth", block: "end" });
-  });
-
-  // Age rules: under 13 can't sign up; 13 to 17 can join but isn't on the party list.
-  document.querySelectorAll('input[name="age"]').forEach(function (r) {
-    r.addEventListener("change", function () {
-      var note = $("age-note"), v = r.value;
-      setInvalid("f-age", false);
-      note.hidden = v === "18+";
-      note.classList.toggle("stop", v === "under13");
-      if (v === "under13") note.textContent = "You have to be at least 13 to sign up. You can still follow along and comment what we build next.";
-      else note.textContent = "You'll get your spot on the disco ball and your room. The party itself is 18+, so you won't be on the invite list.";
-      $("submit").disabled = v === "under13";
-    });
-  });
-
-  var picUrl = null;
-  $("picture").addEventListener("change", function (e) {
-    var f = e.target.files[0];
-    setInvalid("f-pic", false);
-    if (!f) return;
-    if (!/^image\//.test(f.type)) { e.target.value = ""; setInvalid("f-pic", true); return; }
-    if (picUrl) URL.revokeObjectURL(picUrl);
-    picUrl = URL.createObjectURL(f);
-    $("avatar").src = picUrl;
-    $("pic-label").textContent = "Change picture";
-  });
-
-  ["handle", "city"].forEach(function (id) {
-    $(id).addEventListener("input", function () { setInvalid("f-" + id, false); });
-  });
-  ["phone", "email"].forEach(function (id) {
-    $(id).addEventListener("input", function () { setInvalid("f-contact", false); });
-  });
-  $("rooms").addEventListener("change", function () { setInvalid("f-room", false); });
-  $("agree").addEventListener("change", function () { setInvalid("f-agree", false); });
-
-  $("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var handle = cleanHandle($("handle").value);
-    var age = picked("age");
-    var room = picked("room");
-    var useText = picked("contact") === "text";
-    var phoneOk = /^\+?[\d\s().-]+$/.test($("phone").value.trim()) && $("phone").value.replace(/\D/g, "").length >= 10 && $("phone").value.replace(/\D/g, "").length <= 15;
-    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($("email").value.trim());
-    var bad = [
-      setInvalid("f-handle", !/^(?!.*\.\.)(?!\.)(?!.*\.$)[a-z0-9._]{1,30}$/.test(handle)) && "handle",
-      setInvalid("f-contact", !(useText ? phoneOk : emailOk)) && (useText ? "phone" : "email"),
-      setInvalid("f-city", !$("city").value.trim()) && "city",
-      setInvalid("f-room", !room) && "rooms",
-      setInvalid("f-age", !age) && "f-age",
-      setInvalid("f-agree", !$("agree").checked) && "agree"
-    ].filter(Boolean);
-    if (age === "under13") return;
-    if (bad.length) {
-      var first = $(bad[0]);
-      first.scrollIntoView({ behavior: "smooth", block: "center" });
-      if (first.focus) first.focus({ preventScroll: true });
-      return;
-    }
-    function showCard() {
-      $("card-handle").textContent = "@" + handle;
-      $("card-room").textContent = "Room: " + room;
-      $("card-invite").textContent = age === "18+" ? "On the party invite list" : "On the disco ball";
-      $("card-pic").src = picUrl || LOGO;
-      $("signup").hidden = true;
-      $("done").hidden = false;
-      window.scrollTo(0, 0);
-    }
-    if (!ENDPOINT) { showCard(); return; }
-
-    var btn = $("submit");
-    var err = $("form-err");
-    err.hidden = true;
-    btn.disabled = true;
-    btn.textContent = "Saving...";
-    var file = $("picture").files[0];
-    (file ? shrinkPicture(file) : Promise.resolve("")).then(function (picture) {
-      var ctl = new AbortController();
-      var timer = setTimeout(function () { ctl.abort(); }, 45000);
-      // Sent as plain text so the browser goes straight to Apps Script, which can't answer preflight checks.
-      return fetch(ENDPOINT, {
-        method: "POST",
-        signal: ctl.signal,
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          handle: handle, contact: useText ? "text" : "email",
-          phone: useText ? $("phone").value.trim() : "", email: useText ? "" : $("email").value.trim(),
-          city: $("city").value.trim(), room: room, age: age, agree: $("agree").checked,
-          roster: $("roster").checked, picture: picture, website: $("website").value
-        })
-      }).then(function (r) { clearTimeout(timer); return r.json(); });
-    }).then(function (res) {
-      if (!res.ok) throw new Error(res.error || "");
-      showCard();
-    }).catch(function (e) {
-      var msg = e && e.message;
-      var friendly = msg && !/fetch|network|abort|json|load failed|bad image/i.test(msg);
-      err.textContent = friendly ? msg : "That didn't go through. Check your connection and try again.";
-      err.hidden = false;
-    }).then(function () {
-      btn.disabled = false;
-      btn.textContent = "Claim my spot";
-    });
-  });
-</script>
+<footer>
+  <a href="https://www.instagram.com/internetmansionproject/" target="_blank" rel="noopener">@internetmansionproject</a>
+  <a href="privacy.html">Privacy policy</a>
+</footer>
 </body>
 </html>
