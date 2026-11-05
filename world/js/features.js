@@ -7,6 +7,7 @@ import { buildCars } from './cars.js';
 import { buildExtras } from './extras.js';
 import { buildRoomArt } from './roomart.js';
 import { buildOpenRooms } from './openrooms.js';
+import { buildEstate } from './estate.js';
 import { buildResidents } from './residents.js';
 import { buildStadium } from './stadium.js';
 import { seatSigns } from './signs.js';
@@ -680,6 +681,7 @@ export function buildFeatures(game, data, assets) {
   buildExtras(game, data, H);
   buildRoomArt(game, data, H);
   buildOpenRooms(game, data, H); // Before the crowd, so nobody gets placed on its doors or signs
+  buildEstate(game, data, H);
   if (!/[?&]nocrowd\b/.test(location.search)) buildResidents(game, data, H);
   buildStadium(game, data, H);
   game.signReport = seatSigns(scene, V); // Last, so it sees every sign that was built above.
@@ -698,6 +700,8 @@ export function buildFeatures(game, data, assets) {
   game.roomAt = () => {
     const x = player.pos.x, y = -player.pos.z, h = player.pos.y - G;
     const wingRooms = { 1: ['Hot Rod Garage', 'Hot Rod Garage'], 3: ['Gaming Room', 'Music Studio', 'Movie Theater', 'Movie Theater'], 5: ['Chill Lounge', 'Art Gallery', 'Designer Closet'], 7: ['The Kitchen', 'Open Room', 'Open Room'] };
+    if (x >= 140 && x < 232 && y >= -11 && y < 34) return { id: 'guest-houses', name: 'Guest Houses' };
+    if (spots.estate.wingTop && x >= -115 && x < -84 && y >= -26 && y < -2) return { id: 'bedroom-wing', name: 'The Bedroom Wing' };
     if (Math.hypot(x + 6, y - 112) < 20 && h < 24 && h >= 0) return { id: 'party', name: 'Party Room' };
     { const St = spots.stadium, qx = Math.abs(x - St.cx) - St.bx + St.rr, qy = Math.abs(y - St.cy) - St.by + St.rr, d = Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - St.rr;
       const L = St.locker, T = St.tunnel;

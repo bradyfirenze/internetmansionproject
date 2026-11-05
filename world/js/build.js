@@ -4,6 +4,7 @@
 // Game space is x = bx, y = GROUND + h, z = -by.
 import { B } from './blocks.js';
 import { WORLD } from './voxels.js';
+import { buildEstateBlocks, estateSites, inSite } from './estate.js';
 
 const G = WORLD.GROUND;
 const FX = [-6, -19];
@@ -881,8 +882,11 @@ export function buildWorld(V) {
     }
     return !near(x, y, r + 5);
   };
+  const putBlock = put, estateTrees = []; // Trees on the estate lots get pulled after planting, so every other tree stays exactly where it was
   const tree = (x, y) => {
-    const t = 5 + Math.floor(rnd() * 4), leaf = rnd() > 0.5 ? B.leaf : B.leaf2;
+    const t = 5 + Math.floor(rnd() * 4), leaf = rnd() > 0.5 ? B.leaf : B.leaf2, cells = [], inEstate = inSite(estateSites.guest, x, y) || inSite(estateSites.wing, x, y);
+    const put = (a, b, c, id) => { if (inEstate) cells.push([a, b, c]); putBlock(a, b, c, id); };
+    if (inEstate) estateTrees.push(cells);
     for (let h = 0; h < t; h++) put(x, y, h, B.bark);
     const r = 3 + Math.floor(rnd() * 2);
     for (let a = -r; a <= r; a++) for (let b = -r; b <= r; b++) for (let c = -2; c <= 3; c++) {
@@ -904,5 +908,7 @@ export function buildWorld(V) {
     if (clear(x, y, 4)) tree(x, y);
   }
   for (const [x, y] of [[-40, -24], [28, -30], [97, 42], [97, 6], [-30, -36], [18, -36], [-52, -12], [40, -12]]) if (get(x, y, 0) === 0) palm(x, y);
+  for (const cells of estateTrees) for (const [x, y, h] of cells) put(x, y, h, B.air);
+  buildEstateBlocks({ fill, put, get, shell, B }, spots);
   return { spots, rail, W, full, core, hall, upper, G, get, U, DY, GZ };
 }

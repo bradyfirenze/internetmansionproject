@@ -261,7 +261,7 @@ async function boot() {
   const PINS = [
     ['Front Gate', -6, -104, 0], ['Driveway', -6, -48, 0], ['Foyer', -24, 25, 0], ['Rooms Floor', -20, 75, 13], ['Roof', 6, 25, 19], ['Pool', 70, 7, 0], ['Crane', 49, 22, 0], ['Festival Stage', 121, 75, 0], ['Speedway', 152, -40, 0],
     ['Mansion Station', data.spots.stations[0].x, data.spots.stations[0].y, 1], ['Giza Station', data.spots.stations[1].x, data.spots.stations[1].y, 1], ['Party Room', -6, 96, 0], ['Hall of Fame', -52, 25, 0], ['Basketball', -102, 16, 0], ['Stadium Gate', -150, 30, 0], ['The Field', -262, 30, 0], ['Locker Room', -262, 138, 0],
-    ['Garage', data.W[1].P(26, 15)[0], data.W[1].P(26, 15)[1], 0], ['Khufu', -28, 129, 0], ['Sphinx', 32, 119, 0], ['Gaming Room', data.W[3].P(8, 10)[0], data.W[3].P(8, 10)[1], 0], ['Lounge', data.W[5].P(9, 14)[0], data.W[5].P(9, 14)[1], 0],
+    ['Guest Houses', 170, 11, 0], ...(data.spots.estate.wingTop ? [['Bedroom Wing', -80, -14, 0]] : []), ['Garage', data.W[1].P(26, 15)[0], data.W[1].P(26, 15)[1], 0], ['Khufu', -28, 129, 0], ['Sphinx', 32, 119, 0], ['Gaming Room', data.W[3].P(8, 10)[0], data.W[3].P(8, 10)[1], 0], ['Lounge', data.W[5].P(9, 14)[0], data.W[5].P(9, 14)[1], 0],
   ];
   const pinWrap = $('mapPins');
   const toggleSheet = (id, on) => {
@@ -585,7 +585,7 @@ async function boot() {
   }
   sun.shadow.autoUpdate = false;
   frame();
-  if (params.has('auto')) $('enter').click();
+  if (params.has('auto') && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) $('enter').click(); // Test shortcut, never on the public site: it would skip the signup
 }
 
 boot().catch((e) => { console.error(e); $('loadText').textContent = 'Something broke: ' + e.message; });
