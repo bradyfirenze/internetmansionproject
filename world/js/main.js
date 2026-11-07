@@ -167,6 +167,7 @@ async function boot() {
   V.bakeLight();
   await setLoad(48, 'Hanging 1,000 pictures...');
   // Some picture files keep an old misspelling. Names on screen use the right one.
+  if (facesData.hallExtra?.length) CHECKLIST.find((c) => c[0] === 'hall')[2] = 'The first 1,000 followers, plus paid late entries. Look at a picture to read the name.';
   const nameFixes = await fetch('assets/name_fixes.json').then((r) => r.json()).catch(() => ({}));
   game.displayName = (n) => nameFixes[n] || n;
   game.lowPower = IS_TOUCH || params.has('low');
@@ -456,7 +457,7 @@ async function boot() {
   };
 
   // ---------- Debug hook for testing ----------
-  if (params.has('debug')) window.__imp = { game, player, V, B, data, keys, TIMES, clock, applyTime, pressUse, releaseUse, exitLocked, start: () => $('enter').click(), renderer, toggleFly, sim: (sec) => { for (let i = 0; i < sec * 30; i++) { time += 1 / 30; step(1 / 30); } } };
+  if (params.has('debug') && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) window.__imp = { game, player, V, B, data, keys, TIMES, clock, applyTime, pressUse, releaseUse, exitLocked, start: () => $('enter').click(), renderer, toggleFly, sim: (sec) => { for (let i = 0; i < sec * 30; i++) { time += 1 / 30; step(1 / 30); } } };
 
   // ---------- Main loop ----------
   const clockT = new THREE.Clock(); let cullT = 0, roomPrev = '', time = 0, shadowT = 0, lastPos = new THREE.Vector3(1e9, 0, 0), roomId = '', miniT = 0, frames = 0, fpsT = 0;

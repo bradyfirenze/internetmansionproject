@@ -8,6 +8,7 @@ import { buildExtras } from './extras.js';
 import { buildRoomArt } from './roomart.js';
 import { buildOpenRooms } from './openrooms.js';
 import { buildEstate } from './estate.js';
+import { buildSponsors } from './sponsors.js';
 import { buildResidents } from './residents.js';
 import { buildStadium } from './stadium.js';
 import { seatSigns } from './signs.js';
@@ -358,29 +359,33 @@ export function buildFeatures(game, data, assets) {
     m.customProgramCacheKey = () => 'face' + frame;
     return m;
   };
-  const instFaces = (count, placer, size, frame) => {
+  const instFaces = (count, placer, size, frame, faceOf = (i) => i % FG.names.length) => {
     const g = new THREE.PlaneGeometry(size, size); const arr = new Float32Array(count);
     const im = new THREE.InstancedMesh(g, faceMat(frame), count);
     const O = new THREE.Object3D();
-    for (let i = 0; i < count; i++) { placer(i, O); O.updateMatrix(); im.setMatrixAt(i, O.matrix); arr[i] = i % FG.names.length; }
+    for (let i = 0; i < count; i++) { placer(i, O); O.updateMatrix(); im.setMatrixAt(i, O.matrix); arr[i] = faceOf(i); }
     g.setAttribute('aFace', new THREE.InstancedBufferAttribute(arr, 1));
     im.frustumCulled = false; return im;
   };
+  // The wall: the first HALL names (frozen), then paid late entries from hallExtra. People's places in the list never change, so nobody moves.
+  const HALL = Math.min(FG.hallCount ?? FG.names.length, FG.names.length), WALL_MAX = 1022; // WALL_MAX is what fits under the ceiling
+  const lateFaces = (FG.hallExtra || []).filter((n) => Number.isInteger(n) && n >= HALL && n < FG.names.length);
+  const wallFaces = [...Array(HALL).keys(), ...lateFaces].slice(0, WALL_MAX);
   const RT = spots.rotunda, faceCols = 54, rowH = 1.4, FACE_R = RT.r - 1.6; // In front of every corner of the blocky wall
   const rC = P3(RT.x, RT.y, 0);
   // Every follower gets their own open spot on the wall. The doorway stays clear, so those faces go up a row instead.
   const hofSlots = [], hofIndex = new Map();
-  for (let row = 0; hofSlots.length < FG.names.length; row++) for (let col = 0; col < faceCols && hofSlots.length < FG.names.length; col++) {
+  for (let row = 0; hofSlots.length < wallFaces.length; row++) for (let col = 0; col < faceCols && hofSlots.length < wallFaces.length; col++) {
     const a = col / faceCols * 6.283 + 0.25 + row * 0.03, h = 1.6 + row * rowH;
     if (Math.abs(Math.atan2(Math.sin(a), Math.cos(a))) < 0.42 && h < 11.4) continue;
     hofIndex.set(row * faceCols + col, hofSlots.length); hofSlots.push({ a, h });
   }
   const faceRows = Math.ceil(hofSlots[hofSlots.length - 1].h / rowH);
-  const hof = instFaces(FG.names.length, (i, O) => {
+  const hof = instFaces(wallFaces.length, (i, O) => {
     const { a, h } = hofSlots[i];
     O.position.set(rC.x + Math.cos(a) * FACE_R, G + h, rC.z - Math.sin(a) * FACE_R);
     O.lookAt(rC.x, O.position.y, rC.z);
-  }, 1.22, 0.05);
+  }, 1.22, 0.05, (i) => wallFaces[i]);
   game.hofSlots = hofSlots;
   scene.add(hof);
   // Gold outline on the picture being read, so it's clear in play and in footage whose name it is
@@ -400,13 +405,14 @@ export function buildFeatures(game, data, assets) {
   };
   // Reads the crosshair, or a mouse or tap direction when one is passed in. Spellings come from assets/name_fixes.json, through displayName.
   game.hallLabel = (aim) => {
-    const i = hallFaceAt(aim); hallMark.visible = i !== undefined && !!FG.names[i];
+    const i = hallFaceAt(aim); hallMark.visible = i !== undefined && !!FG.names[wallFaces[i]];
     if (!hallMark.visible) return null;
     const { a, h } = hofSlots[i]; hallMark.position.set(rC.x + Math.cos(a) * (FACE_R + 0.03), G + h, rC.z - Math.sin(a) * (FACE_R + 0.03)); hallMark.lookAt(rC.x, hallMark.position.y, rC.z);
-    return '@' + game.displayName(FG.names[i]);
+    return '@' + game.displayName(FG.names[wallFaces[i]]) + (i >= HALL ? ', late entry' : '');
   };
   // Rotunda sign and the guard joke
-  sign(P3(-49.5, 25, 3), 'HALL OF FAME. First 1,000 followers. Point at or tap a picture to read the name.');
+  // The late entry wording only shows once there is a late entry
+  sign(P3(-49.5, 25, 3), lateFaces.length ? 'HALL OF FAME. The first 1,000 followers, plus late entries who paid for a spot. Point at or tap a picture to read the name.' : 'HALL OF FAME. First 1,000 followers. Point at or tap a picture to read the name.');
   sign(P3(-39, 21.5, 1.2), 'Hall of Fame guard post. @5star.battle applied for this job in the comments.');
 
   function sign(pos, text) { addE({ pos, r: 3.2, prompt: () => 'Read the sign', use: () => { game.notice(text); sound.fx('click'); } }); }
@@ -535,7 +541,7 @@ export function buildFeatures(game, data, assets) {
   {
     const S = spots.gallery, w = W[5];
     const n = 8, picks = [];
-    for (let i = 0; i < n; i++) picks.push(i * 37 % FG.names.length);
+    for (let i = 0; i < n; i++) picks.push(i * 37 % HALL); // HALL, so the gallery keeps the same faces as the list grows
     const grid = instFaces(n, (i, O) => {
       const side = i % 2, u = S.u0 + 2 + Math.floor(i / 2) * 3.4;
       const [x, y] = w.P(u, side ? w.width - 0.95 : 0.95);
@@ -682,6 +688,7 @@ export function buildFeatures(game, data, assets) {
   buildRoomArt(game, data, H);
   buildOpenRooms(game, data, H); // Before the crowd, so nobody gets placed on its doors or signs
   buildEstate(game, data, H);
+  buildSponsors(game, data, H);
   if (!/[?&]nocrowd\b/.test(location.search)) buildResidents(game, data, H);
   buildStadium(game, data, H);
   game.signReport = seatSigns(scene, V); // Last, so it sees every sign that was built above.
